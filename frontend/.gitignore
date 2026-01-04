@@ -1,0 +1,8 @@
+node_modules
+.next
+.env.local
+.env
+out/
+.commandcode
+# Sentry Config File
+.env.sentry-build-plugin
