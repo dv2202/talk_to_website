@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "WidgetPosition" ADD VALUE IF NOT EXISTS 'CENTER';
