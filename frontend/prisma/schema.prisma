@@ -1,0 +1,337 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── BetterAuth Models ───
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  governxoneApiKey    String?
+  governxoneProjectId String?
+  governxoneEndpoint  String?
+
+  sessions     Session[]
+  accounts     Account[]
+  bots         Bot[]
+  subscription Subscription?
+  payments     Payment[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+/// Temporary signup records — account is created only after OTP confirmation
+model PendingSignup {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  otpHash      String
+  attempts     Int      @default(0)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([expiresAt])
+}
+
+// ─── Application Models ───
+
+enum PlanId {
+  FREE
+  STARTER
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum BotMode {
+  CHAT
+  VOICE
+  BOTH
+}
+
+enum WidgetPosition {
+  BOTTOM_RIGHT
+  BOTTOM_LEFT
+  CENTER
+}
+
+enum FallbackContactType {
+  EMAIL
+  WHATSAPP
+  TELEGRAM
+  PHONE
+}
+
+enum KnowledgeSourceType {
+  PDF
+  TXT
+  URL
+}
+
+enum LiveChatRoomStatus {
+  WAITING
+  ACTIVE
+  EXPIRED
+  CLOSED
+}
+
+enum LiveChatSender {
+  VISITOR
+  OWNER
+}
+
+model Bot {
+  id               String         @id @default(cuid())
+  name             String
+  botName          String         @unique
+  widgetApiKey     String?        @unique
+  allowedOrigin    String?
+  description      String?
+  systemPrompt     String         @default("Answer users politely and help them understand our services.")
+  defaultLanguage  String         @default("English")
+  mode             BotMode        @default(CHAT)
+  widgetPosition   WidgetPosition @default(BOTTOM_RIGHT)
+  logo               String?
+  themeColor         String?        @default("#0f172a")
+  logoBgColor        String?        @default("#ffffff")
+  widgetLogo         String?
+  widgetLogoBgColor  String?        @default("#2678FF")
+  welcomeTitle     String?
+  welcomeSubtitle  String?
+  quickQuestions   String?        @default("What do you do?,How can you help me?,Tell me more")
+  teaserMessage    String?
+  teaserDelay      Int            @default(5)
+  /// JSON array of { type: FallbackContactType, value: string }
+  fallbackContacts Json?
+  /// Toggle the "Talk to a human" handoff (Pro plan). Always gated by plan.
+  humanChatEnabled Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  knowledgeSources KnowledgeSource[]
+  knowledgeChunks  KnowledgeChunk[]
+  conversations    Conversation[]
+  visitors         Visitor[]
+  liveChatRooms    LiveChatRoom[]
+}
+
+model KnowledgeSource {
+  id          String              @id @default(cuid())
+  type        KnowledgeSourceType
+  name        String?
+  content     String
+  contentHash String?
+
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  chunks KnowledgeChunk[]
+
+  createdAt DateTime @default(now())
+}
+
+model KnowledgeChunk {
+  id          String                       @id @default(uuid())
+  botId       String
+  sourceId    String
+  content     String
+  chunkIndex  Int
+  metadata    Json?
+  contentHash String
+  embedding   Unsupported("vector(1536)")?
+
+  source KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  bot    Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([botId])
+  @@index([sourceId])
+  @@index([contentHash])
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  userMessage String
+  aiResponse  String
+  sessionId   String?
+  createdAt   DateTime @default(now())
+
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  visitorId String?
+  visitor   Visitor? @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+}
+
+model Visitor {
+  id             String   @id @default(cuid())
+  visitorToken   String
+  sessionId      String?
+  name           String   @default("Anonymous User")
+  email          String?
+  skippedProfile Boolean  @default(false)
+  country        String?
+  ipAddress      String?
+  userAgent      String?
+  deviceType     String?
+  platform       String?
+  timezone       String?
+  language       String?
+  firstSeenAt    DateTime @default(now())
+  lastSeenAt     DateTime @default(now())
+
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  conversations Conversation[]
+
+  liveChatRooms LiveChatRoom[]
+
+  @@unique([botId, visitorToken])
+  @@index([botId, lastSeenAt])
+}
+
+model LiveChatRoom {
+  id            String             @id @default(cuid())
+  botId         String
+  sessionId     String?
+  status        LiveChatRoomStatus @default(WAITING)
+  /// When the owner picks up the room (accept).
+  ownerJoinedAt DateTime?
+  /// When WAITING → ACTIVE window closes; owner must accept before this.
+  expiresAt     DateTime
+  /// Who ended the room: VISITOR | OWNER | SYSTEM | TIMEOUT
+  endedBy       String?
+  closedAt      DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  visitor   Visitor? @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+  visitorId String?
+
+  messages LiveChatMessage[]
+
+  @@index([botId, status])
+  @@index([botId, createdAt])
+}
+
+model LiveChatMessage {
+  id        String         @id @default(cuid())
+  roomId    String
+  sender    LiveChatSender
+  content   String
+  createdAt DateTime       @default(now())
+
+  room LiveChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt])
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  planId                 PlanId
+  status                 SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  razorpaySubscriptionId String?            @unique
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  payments Payment[]
+
+  @@index([status, currentPeriodEnd])
+}
+
+model Payment {
+  id                     String        @id @default(cuid())
+  planId                 PlanId
+  amount                 Int
+  currency               String        @default("INR")
+  status                 PaymentStatus @default(PENDING)
+  razorpayOrderId        String?       @unique
+  razorpaySubscriptionId String?
+  razorpayPaymentId      String?       @unique
+  razorpaySignature      String?
+  receipt                String?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([razorpaySubscriptionId])
+}
