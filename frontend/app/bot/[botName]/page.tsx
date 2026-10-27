@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, use } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import {
+  clearVisitorAccessToken,
+  getStoredVisitorAccessToken,
+  storeVisitorAccessToken,
+} from "@/lib/visitor-access-browser";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,6 +125,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
     }
   }
   const sessionId = sessionIdRef.current;
+
 
   const appendMessage = useCallback((role: Message["role"], content: string, createdAt?: string, contacts?: FallbackContact[]) => {
     setMessages((prev) => [...prev, { role, content, createdAt: createdAt || new Date().toISOString(), contacts }]);
@@ -543,6 +549,9 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
             botName: botConfig?.botName,
             message,
             sessionId,
+            visitorAccessToken: botConfig?.id
+              ? getStoredVisitorAccessToken(botConfig.id) || undefined
+              : undefined,
           },
           {
             onToken: (token) => {
@@ -565,6 +574,9 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
               });
             },
             onDone: (result) => {
+              if (result.visitorAccessToken) {
+                if (botConfig?.id) storeVisitorAccessToken(botConfig.id, result.visitorAccessToken);
+              }
               if (!result.createdAt) return;
               setMessages((prev) => {
                 const next = [...prev];
@@ -606,7 +618,10 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
         };
 
         try {
-          const conversations = await api.getConversations(config.id, { sessionId });
+          const accessToken = getStoredVisitorAccessToken(config.id);
+          const conversations = accessToken
+            ? await api.getConversations(config.id, accessToken)
+            : [];
           if (Array.isArray(conversations) && conversations.length > 0) {
             const restored: Message[] = [];
             for (const conversation of conversations as Array<{
@@ -624,6 +639,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
             setMessages([greeting]);
           }
         } catch {
+          clearVisitorAccessToken(config.id);
           setMessages([greeting]);
         }
       } catch (error) {

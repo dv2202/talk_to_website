@@ -32,6 +32,7 @@
   let host = null;
   let shadow = null;
   let visitorProfile = null;
+  let currentVisitorAccessToken = null;
   let visitorReady = false;
   let chatBootstrapped = false;
   let isRegistering = false;
@@ -44,6 +45,7 @@
 
   const storageKeys = {
     visitorToken: `ttw:visitor-token:${botName}`,
+    visitorAccessToken: `ttw:visitor-access:${botName}`,
     visitorProfile: `ttw:visitor-profile:${botName}`,
     sessionId: `ttw:session-id:${botName}`,
   };
@@ -1497,6 +1499,15 @@
     return token;
   }
 
+  function getVisitorAccessToken() {
+    return currentVisitorAccessToken || safeStorageGet("localStorage", storageKeys.visitorAccessToken);
+  }
+
+  function setVisitorAccessToken(token) {
+    currentVisitorAccessToken = token;
+    safeStorageSet("localStorage", storageKeys.visitorAccessToken, token);
+  }
+
   function getSessionId() {
     let sessionId = safeStorageGet("sessionStorage", storageKeys.sessionId);
     if (!sessionId) {
@@ -1861,6 +1872,7 @@
       response: finalResult.response || fullText,
       createdAt: finalResult.createdAt,
       visitorId: finalResult.visitorId || null,
+      visitorAccessToken: finalResult.visitorAccessToken || null,
       fallbackContact: finalResult.fallbackContact || null,
       fallbackContacts: finalResult.fallbackContacts || null,
     };
@@ -2039,17 +2051,13 @@
     if (!botConfig || !botConfig.id) return;
 
     try {
-      const params = new URLSearchParams();
-      if (visitorProfile && visitorProfile.id) {
-        params.set("visitorId", visitorProfile.id);
-      } else {
-        params.set("sessionId", getSessionId());
-      }
+      const accessToken = getVisitorAccessToken();
+      if (!accessToken) throw new Error("No visitor session");
 
       const response = await fetch(
-        backendUrl + "/api/chat/" + botConfig.id + "?" + params.toString(),
+        backendUrl + "/api/chat/" + botConfig.id,
         {
-          headers: requestHeaders(),
+          headers: requestHeaders({ "X-Visitor-Access-Token": accessToken }),
         }
       );
 
@@ -2103,6 +2111,7 @@
           widgetApiKey: widgetApiKey,
           visitorId: visitorProfile && visitorProfile.id,
           visitorToken: getVisitorToken(),
+          visitorAccessToken: getVisitorAccessToken(),
           sessionId: getSessionId(),
           profile: getClientProfile(overrides),
         }),
@@ -2113,6 +2122,9 @@
       }
 
       const data = await response.json();
+      if (data.visitorAccessToken) {
+        setVisitorAccessToken(data.visitorAccessToken);
+      }
       visitorProfile = {
         id: data.id,
         name: data.name,
@@ -2271,6 +2283,7 @@
         sessionId: getSessionId(),
         visitorId: visitorProfile.id,
         visitorToken: getVisitorToken(),
+        visitorAccessToken: getVisitorAccessToken(),
         visitorProfile: getClientProfile({
           name: visitorProfile.name,
           email: visitorProfile.email,
@@ -2289,6 +2302,9 @@
       if (data.visitorId && visitorProfile.id !== data.visitorId) {
         visitorProfile.id = data.visitorId;
         setStoredVisitorProfile(visitorProfile);
+      }
+      if (data.visitorAccessToken) {
+        setVisitorAccessToken(data.visitorAccessToken);
       }
     } catch (_error) {
       if (typingRow && typingRow.parentNode) {

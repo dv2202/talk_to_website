@@ -3,6 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bot, Send, Home, MessageSquare, ChevronDown, X, ArrowLeft, AlertCircle, Loader2, Mail, MessageCircle, Phone } from "lucide-react";
 import { api } from "@/lib/api";
+import {
+  clearVisitorAccessToken,
+  getStoredVisitorAccessToken,
+  storeVisitorAccessToken,
+} from "@/lib/visitor-access-browser";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { WidgetLauncherLogo, resolveWidgetLauncherBg } from "@/components/WidgetLauncherLogo";
 import {
@@ -126,9 +131,10 @@ export function ChatWidgetPreview({
 
     (async () => {
       try {
-        const conversations = await api.getConversations(botId, {
-          sessionId: `preview_${botId}`,
-        });
+        const accessToken = getStoredVisitorAccessToken(botId);
+        const conversations = accessToken
+          ? await api.getConversations(botId, accessToken)
+          : [];
         if (cancelled) return;
 
         if (Array.isArray(conversations) && conversations.length > 0) {
@@ -148,6 +154,7 @@ export function ChatWidgetPreview({
           setMessages([greeting]);
         }
       } catch {
+        clearVisitorAccessToken(botId);
         if (!cancelled) setMessages([greeting]);
       } finally {
         if (!cancelled) setIsLoadingHistory(false);
@@ -208,6 +215,7 @@ export function ChatWidgetPreview({
             botName: botName || undefined,
             message: text,
             sessionId: `preview_${botId}`,
+            visitorAccessToken: getStoredVisitorAccessToken(botId) || undefined,
           },
           {
             onToken: (token) => {
@@ -231,6 +239,9 @@ export function ChatWidgetPreview({
               });
             },
             onDone: (result) => {
+              if (result.visitorAccessToken) {
+                storeVisitorAccessToken(botId, result.visitorAccessToken);
+              }
               const contacts =
                 result.fallbackContacts ??
                 (result.fallbackContact ? [result.fallbackContact] : null);

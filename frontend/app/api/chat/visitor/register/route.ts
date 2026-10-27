@@ -8,7 +8,7 @@ import {
     getCorsHeaders,
     corsResponse,
     getRequestOrigin,
-    upsertVisitor,
+    upsertAuthorizedVisitor,
     buildVisitorSummary,
     VisitorProfileInput
 } from "@/lib/chat-utils";
@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
             botName,
             visitorId,
             visitorToken,
+            visitorAccessToken,
             sessionId,
             profile,
             widgetApiKey,
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
             botName?: string;
             visitorId?: string;
             visitorToken?: string;
+            visitorAccessToken?: string;
             sessionId?: string;
             profile?: VisitorProfileInput;
             widgetApiKey?: string;
@@ -62,20 +64,27 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const visitor = await upsertVisitor({
+        let authorized = await upsertAuthorizedVisitor({
             bot,
             req,
-            visitorId,
-            visitorToken,
+            accessToken: visitorAccessToken,
             sessionId,
             profile,
         });
-
-        if (!visitor) {
-            return corsResponse({ error: "visitorToken is required" }, origin, bot.allowedOrigin, 400);
+        // Expired or invalid anonymous sessions start fresh; never reuse the
+        // unverified visitorId or visitorToken supplied by the browser.
+        if (!authorized && visitorAccessToken) {
+            authorized = await upsertAuthorizedVisitor({ bot, req, sessionId, profile });
         }
 
-        return corsResponse(buildVisitorSummary(visitor), origin, bot.allowedOrigin);
+        if (!authorized) {
+            return corsResponse({ error: "Invalid visitor session" }, origin, bot.allowedOrigin, 401);
+        }
+
+        return corsResponse({
+            ...buildVisitorSummary(authorized.visitor),
+            visitorAccessToken: authorized.accessToken,
+        }, origin, bot.allowedOrigin);
     } catch (error) {
         console.error("Register visitor error:", error);
         return corsResponse({ error: "Failed to register visitor" }, origin, null, 500);

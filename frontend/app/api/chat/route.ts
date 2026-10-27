@@ -11,7 +11,7 @@ import {
     getCorsHeaders,
     corsResponse,
     getRequestOrigin,
-    upsertVisitor,
+    upsertAuthorizedVisitor,
     VisitorProfileInput
 } from "@/lib/chat-utils";
 import { retrieveRelevantChunks, buildRAGPrompt, buildPromptGuardrails } from "@/lib/rag";
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
             sessionId,
             visitorId,
             visitorToken,
+            visitorAccessToken,
             visitorProfile,
             widgetApiKey,
         } = body as {
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
             sessionId?: string;
             visitorId?: string;
             visitorToken?: string;
+            visitorAccessToken?: string;
             visitorProfile?: VisitorProfileInput;
             widgetApiKey?: string;
         };
@@ -92,14 +94,17 @@ export async function POST(req: NextRequest) {
             throw err;
         }
 
-        const visitor = await upsertVisitor({
+        const authorized = await upsertAuthorizedVisitor({
             bot,
             req,
-            visitorId,
-            visitorToken,
+            accessToken: visitorAccessToken,
             sessionId,
             profile: visitorProfile,
         });
+        if (!authorized) {
+            return corsResponse({ error: "Invalid visitor session" }, origin, bot.allowedOrigin, 401);
+        }
+        const visitor = authorized.visitor;
 
         const recentConversations = await prisma.conversation.findMany({
             where: {
@@ -241,6 +246,7 @@ export async function POST(req: NextRequest) {
                         response: aiResponse,
                         createdAt: conversation.createdAt,
                         visitorId: visitor?.id || null,
+                        visitorAccessToken: authorized.accessToken,
                         fallbackContacts,
                     });
                 } catch (error: any) {
