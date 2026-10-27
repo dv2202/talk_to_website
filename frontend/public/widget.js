@@ -1508,6 +1508,11 @@
     safeStorageSet("localStorage", storageKeys.visitorAccessToken, token);
   }
 
+  function liveRequestHeaders(extra) {
+    var token = getVisitorAccessToken();
+    return requestHeaders(Object.assign({}, extra || {}, token ? { "X-Visitor-Access-Token": token } : {}));
+  }
+
   function getSessionId() {
     let sessionId = safeStorageGet("sessionStorage", storageKeys.sessionId);
     if (!sessionId) {
@@ -2408,8 +2413,7 @@
         role: "visitor",
         botId: botConfig.id,
         roomId: roomId,
-        visitorId: visitorProfile.id,
-        sessionId: getSessionId(),
+        visitorAccessToken: getVisitorAccessToken(),
       }));
     };
 
@@ -2491,10 +2495,9 @@
     if (!visitorProfile || !visitorProfile.id) return;
     fetch(backendUrl + "/api/live/rooms/" + liveChat.roomId + "/typing", {
       method: "POST",
-      headers: requestHeaders({ "Content-Type": "application/json" }),
+      headers: liveRequestHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         isTyping: isTyping,
-        visitorId: visitorProfile.id,
       }),
     }).catch(function () { });
   }
@@ -2589,8 +2592,8 @@
     const roomId = liveChat.roomId;
     try {
       const res = await fetch(
-        backendUrl + "/api/live/rooms/" + roomId + "?visitorId=" + encodeURIComponent(visitorProfile.id),
-        { headers: requestHeaders() }
+        backendUrl + "/api/live/rooms/" + roomId,
+        { headers: liveRequestHeaders() }
       );
       if (!res.ok) return;
       const data = await res.json();
@@ -2619,8 +2622,8 @@
     try {
       await fetch(backendUrl + "/api/live/rooms/" + liveChat.roomId + "/expire", {
         method: "POST",
-        headers: requestHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ visitorId: visitorProfile.id, reason: "visitor-timeout" }),
+        headers: liveRequestHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ reason: "visitor-timeout" }),
       });
     } catch (_error) { }
     enterLiveExpired();
@@ -2654,13 +2657,12 @@
     try {
       const res = await fetch(backendUrl + "/api/live/rooms", {
         method: "POST",
-        headers: requestHeaders({ "Content-Type": "application/json" }),
+        headers: liveRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           botName: botConfig.botName,
           widgetApiKey: widgetApiKey,
           sessionId: getSessionId(),
-          visitorId: visitorProfile.id,
-          visitorToken: getVisitorToken(),
+          visitorAccessToken: getVisitorAccessToken(),
         }),
       });
       if (!res.ok) {
@@ -2668,6 +2670,7 @@
         throw new Error((err && err.error) || "Could not start live chat");
       }
       room = await res.json();
+      if (room.visitorAccessToken) setVisitorAccessToken(room.visitorAccessToken);
     } catch (error) {
       setWidgetTab("messages");
       const msg = error && error.message ? String(error.message) : "";
@@ -2737,9 +2740,8 @@
         (liveChat.status === "waiting" ? "visitor-timeout" : "visitor-left");
       fetch(backendUrl + "/api/live/rooms/" + liveChat.roomId + "/expire", {
         method: "POST",
-        headers: requestHeaders({ "Content-Type": "application/json" }),
+        headers: liveRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
-          visitorId: visitorProfile.id,
           reason: expireReason,
         }),
       }).catch(function () { });
@@ -2766,8 +2768,8 @@
     try {
       const res = await fetch(backendUrl + "/api/live/rooms/" + liveChat.roomId + "/messages", {
         method: "POST",
-        headers: requestHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ content: message, visitorId: visitorProfile.id }),
+        headers: liveRequestHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ content: message }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSession, unauthorizedResponse } from "@/lib/auth-utils";
-import { findBot, upsertVisitor, getCorsHeaders, corsResponse, getRequestOrigin, type VisitorProfileInput } from "@/lib/chat-utils";
+import { findBot, upsertAuthorizedVisitor, getCorsHeaders, corsResponse, getRequestOrigin, type VisitorProfileInput } from "@/lib/chat-utils";
 import { authorizeLiveChatVisitor } from "@/lib/live-chat-http";
 import { canUseHumanChat, listLiveChatRoomsForOwner, type LiveChatRoomStatusValue } from "@/lib/live-chat";
 import { createAndNotifyLiveRoom } from "@/lib/live-hub";
@@ -27,16 +26,14 @@ export async function POST(req: NextRequest) {
             botId,
             botName,
             sessionId,
-            visitorId,
-            visitorToken,
+            visitorAccessToken,
             visitorProfile,
             widgetApiKey,
         } = body as {
             botId?: string;
             botName?: string;
             sessionId?: string;
-            visitorId?: string;
-            visitorToken?: string;
+            visitorAccessToken?: string;
             visitorProfile?: VisitorProfileInput;
             widgetApiKey?: string;
         };
@@ -48,8 +45,6 @@ export async function POST(req: NextRequest) {
 
         const authorized = authorizeLiveChatVisitor(req, {
             bot,
-            room: { visitorId: null },
-            visitorId,
             widgetApiKey,
         });
         if (!authorized.ok) return authorized.response;
@@ -68,22 +63,28 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const visitor = await upsertVisitor({
+        const accessToken = visitorAccessToken || req.headers.get("x-visitor-access-token") || undefined;
+        let authorizedVisitor = await upsertAuthorizedVisitor({
             bot,
             req,
-            visitorId,
-            visitorToken,
+            accessToken,
             sessionId,
             profile: visitorProfile,
         });
+        if (!authorizedVisitor && accessToken) {
+            authorizedVisitor = await upsertAuthorizedVisitor({ bot, req, sessionId, profile: visitorProfile });
+        }
+        if (!authorizedVisitor) {
+            return corsResponse({ error: "Invalid visitor session" }, origin, bot.allowedOrigin, 401);
+        }
 
         const room = await createAndNotifyLiveRoom({
             botId: bot.id,
-            visitorId: visitor?.id || null,
+            visitorId: authorizedVisitor.visitor!.id,
             sessionId,
         });
 
-        return corsResponse(room, origin, bot.allowedOrigin, 201);
+        return corsResponse({ ...room, visitorAccessToken: authorizedVisitor.accessToken }, origin, bot.allowedOrigin, 201);
     } catch (error) {
         console.error("Create live chat room error:", error);
         return corsResponse({ error: "Failed to start live chat" }, origin, null, 500);

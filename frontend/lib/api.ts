@@ -31,6 +31,13 @@ async function fetchApi(endpoint: string, options: FetchOptions = {}) {
     return response.json();
 }
 
+function liveVisitorHeaders(data?: { widgetApiKey?: string; visitorAccessToken?: string }): Record<string, string> {
+    return {
+        ...(data?.widgetApiKey ? { "X-Widget-Api-Key": data.widgetApiKey } : {}),
+        ...(data?.visitorAccessToken ? { "X-Visitor-Access-Token": data.visitorAccessToken } : {}),
+    };
+}
+
 export const api = {
     // Bots
     getBots: () => fetchApi("/api/bots"),
@@ -340,43 +347,41 @@ export const api = {
         botId?: string;
         botName?: string;
         sessionId?: string;
-        visitorId?: string;
-        visitorToken?: string;
+        visitorAccessToken?: string;
         visitorProfile?: Record<string, unknown>;
         widgetApiKey?: string;
     }) =>
         fetchApi("/api/live/rooms", {
             method: "POST",
             body: JSON.stringify(data),
-            headers: data.widgetApiKey ? { "X-Widget-Api-Key": data.widgetApiKey } : undefined,
+            headers: liveVisitorHeaders(data),
         }),
-    getLiveRoom: (roomId: string, params?: { visitorId?: string; widgetApiKey?: string }) =>
+    getLiveRoom: (roomId: string, params?: { visitorAccessToken?: string; widgetApiKey?: string }) =>
         fetchApi(`/api/live/rooms/${roomId}`, {
-            params: params ? { visitorId: params.visitorId || "" } : undefined,
-            headers: params?.widgetApiKey ? { "X-Widget-Api-Key": params.widgetApiKey } : undefined,
+            headers: liveVisitorHeaders(params),
         }),
     acceptLiveRoom: (roomId: string) =>
         fetchApi(`/api/live/rooms/${roomId}/accept`, { method: "POST" }),
-    expireLiveRoom: (roomId: string, data?: { visitorId?: string; widgetApiKey?: string; reason?: string }) =>
+    expireLiveRoom: (roomId: string, data?: { visitorAccessToken?: string; widgetApiKey?: string; reason?: string }) =>
         fetchApi(`/api/live/rooms/${roomId}/expire`, {
             method: "POST",
             body: JSON.stringify(data || {}),
-            headers: data?.widgetApiKey ? { "X-Widget-Api-Key": data.widgetApiKey } : undefined,
+            headers: liveVisitorHeaders(data),
         }),
-    sendLiveMessage: (roomId: string, data: { content: string; visitorId?: string; widgetApiKey?: string }) =>
+    sendLiveMessage: (roomId: string, data: { content: string; visitorAccessToken?: string; widgetApiKey?: string }) =>
         fetchApi(`/api/live/rooms/${roomId}/messages`, {
             method: "POST",
             body: JSON.stringify(data),
-            headers: data.widgetApiKey ? { "X-Widget-Api-Key": data.widgetApiKey } : undefined,
+            headers: liveVisitorHeaders(data),
         }),
     sendLiveTyping: (
         roomId: string,
-        data: { isTyping: boolean; visitorId?: string; widgetApiKey?: string }
+        data: { isTyping: boolean; visitorAccessToken?: string; widgetApiKey?: string }
     ) =>
         fetchApi(`/api/live/rooms/${roomId}/typing`, {
             method: "POST",
             body: JSON.stringify(data),
-            headers: data.widgetApiKey ? { "X-Widget-Api-Key": data.widgetApiKey } : undefined,
+            headers: liveVisitorHeaders(data),
         }),
     suggestLiveReply: (roomId: string) =>
         fetchApi(`/api/live/rooms/${roomId}/suggest`, { method: "POST" }),
