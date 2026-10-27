@@ -4,21 +4,20 @@ import {
     corsResponse,
     extractWidgetApiKey,
     getRequestOrigin,
-    needsWidgetApiKeyValidation,
     validateOrigin,
     validateWidgetApiKey,
 } from "@/lib/chat-utils";
+import { matchesRoomVisitor } from "@/lib/live-chat-access";
 
 /**
  * Validate a live-chat request coming from the visitor side (widget / bot page).
- * Mirrors the `/api/chat` visitor auth: origin + widget API key (+ visitor match).
+ * The public widget key identifies an integration, not the visitor. Room access
+ * requires the signed visitor proof issued by registration or room creation.
  */
 export function authorizeLiveChatVisitor(req: NextRequest, params: {
     bot: Bot;
-    room: {
-        visitorId: string | null;
-    };
-    visitorId?: string;
+    room?: { botId: string; visitorId: string | null };
+    accessToken?: string;
     widgetApiKey?: string;
 }) {
     const { bot, room } = params;
@@ -33,7 +32,7 @@ export function authorizeLiveChatVisitor(req: NextRequest, params: {
     }
 
     const suppliedKey = extractWidgetApiKey(req, { widgetApiKey: params.widgetApiKey });
-    if (needsWidgetApiKeyValidation({ visitorId: params.visitorId, visitorToken: undefined, widgetApiKey: suppliedKey })) {
+    if (suppliedKey) {
         const validation = validateWidgetApiKey({ bot, suppliedKey });
         if (!validation.valid) {
             return {
@@ -43,10 +42,10 @@ export function authorizeLiveChatVisitor(req: NextRequest, params: {
         }
     }
 
-    if (room.visitorId && params.visitorId && room.visitorId !== params.visitorId) {
+    if (room && !matchesRoomVisitor(room, params.accessToken || req.headers.get("x-visitor-access-token") || undefined)) {
         return {
             ok: false as const,
-            response: corsResponse({ error: "Not authorized for this chat" }, origin, bot.allowedOrigin, 403),
+            response: corsResponse({ error: "Not authorized for this chat" }, origin, bot.allowedOrigin, 401),
         };
     }
 

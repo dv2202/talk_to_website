@@ -26,7 +26,6 @@ export async function POST(
         const { roomId } = await params;
         const body = (await req.json().catch(() => ({}))) as {
             content?: string;
-            visitorId?: string;
             widgetApiKey?: string;
         };
 
@@ -48,7 +47,6 @@ export async function POST(
             const authorized = authorizeLiveChatVisitor(req, {
                 bot: room.bot,
                 room,
-                visitorId: body.visitorId,
                 widgetApiKey: body.widgetApiKey,
             });
             if (!authorized.ok) return authorized.response;

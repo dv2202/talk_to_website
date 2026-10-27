@@ -1,4 +1,5 @@
 import type { WebSocket } from "ws";
+import { canControlLiveRoom, matchesRoomVisitor, type LiveConnectionIdentity } from "@/lib/live-chat-access";
 import {
     acceptLiveChatRoom,
     appendLiveChatMessage,
@@ -14,12 +15,7 @@ import {
     type LiveWsServerMessage,
 } from "@/lib/live-chat";
 
-interface LiveConnection {
-    role: "visitor" | "owner";
-    userId?: string;
-    botId?: string;
-    roomId?: string;
-}
+type LiveConnection = LiveConnectionIdentity;
 
 /**
  * In-memory WebSocket hub. A single Vercel Function instance serves the
@@ -156,22 +152,27 @@ export function broadcastToBotOwners(
 }
 
 export function registerLiveConnection(ws: WebSocket) {
-    connections.set(ws, { role: "owner" });
+    connections.set(ws, {});
 }
 
 async function handleHello(ws: WebSocket, msg: Extract<LiveWsClientMessage, { type: "hello" }>) {
+    if (connections.get(ws)?.role) {
+        send(ws, { type: "error", code: "conflict", message: "Already authenticated" });
+        return;
+    }
     if (msg.role === "visitor") {
         const room = await findLiveChatRoom(msg.roomId);
         if (!room || room.botId !== msg.botId) {
             send(ws, { type: "error", code: "not_found", message: "Chat room not found" });
             return;
         }
-        if (room.visitorId && msg.visitorId && room.visitorId !== msg.visitorId) {
+        const visitorId = matchesRoomVisitor(room, msg.visitorAccessToken);
+        if (!visitorId) {
             send(ws, { type: "error", code: "forbidden", message: "Not authorized for this chat" });
             return;
         }
 
-        connections.set(ws, { role: "visitor", botId: msg.botId, roomId: msg.roomId });
+        connections.set(ws, { role: "visitor", visitorId, botId: msg.botId, roomId: msg.roomId });
         addToRoom(msg.roomId, ws);
         send(ws, { type: "hello-ok", role: "visitor", roomId: msg.roomId });
 
@@ -206,11 +207,12 @@ async function handleJoinRoom(ws: WebSocket, roomId: string) {
     if (!conn || conn.role !== "owner" || !conn.userId) return;
 
     const room = await findLiveChatRoom(roomId);
-    if (!room || room.bot.userId !== conn.userId) {
+    if (!room || !canControlLiveRoom(conn, room)) {
         send(ws, { type: "error", code: "forbidden", message: "Not authorized for this chat" });
         return;
     }
 
+    removeFromRoom(conn.roomId, ws);
     conn.roomId = roomId;
     addToRoom(roomId, ws);
     send(ws, { type: "hello-ok", role: "owner", roomId });
@@ -235,7 +237,7 @@ async function handleJoinRoom(ws: WebSocket, roomId: string) {
 
 async function handleMessage(ws: WebSocket, roomId: string, content: string) {
     const conn = connections.get(ws);
-    if (!conn || !conn.roomId || conn.roomId !== roomId) return;
+    if (!conn || !conn.roomId || conn.roomId !== roomId || !conn.role) return;
 
     const sender: LiveChatSenderValue = conn.role === "owner" ? "OWNER" : "VISITOR";
 
@@ -259,7 +261,7 @@ async function handleMessage(ws: WebSocket, roomId: string, content: string) {
 
 function handleTyping(ws: WebSocket, roomId: string, isTyping: boolean) {
     const conn = connections.get(ws);
-    if (!conn || conn.roomId !== roomId) return;
+    if (!conn || conn.roomId !== roomId || !conn.role) return;
     const sender: LiveChatSenderValue = conn.role === "owner" ? "OWNER" : "VISITOR";
     publishTyping(roomId, sender, isTyping, ws);
 }
@@ -267,6 +269,12 @@ function handleTyping(ws: WebSocket, roomId: string, isTyping: boolean) {
 async function handleAccept(ws: WebSocket, roomId: string) {
     const conn = connections.get(ws);
     if (!conn || conn.role !== "owner" || !conn.userId) return;
+
+    const existing = await findLiveChatRoom(roomId);
+    if (!existing || !canControlLiveRoom(conn, existing)) {
+        send(ws, { type: "error", code: "forbidden", message: "Not authorized for this chat" });
+        return;
+    }
 
     try {
         const room = await acceptLiveChatRoom(roomId, conn.userId);
@@ -286,9 +294,13 @@ async function handleAccept(ws: WebSocket, roomId: string) {
 
 async function handleExpire(ws: WebSocket, roomId: string, reason = "visitor-timeout") {
     const conn = connections.get(ws);
-    if (!conn) return;
+    const room = await findLiveChatRoom(roomId);
+    if (!room || !canControlLiveRoom(conn, room)) {
+        send(ws, { type: "error", code: "forbidden", message: "Not authorized for this chat" });
+        return;
+    }
 
-    const result = await expireLiveChatRoom(roomId, { endedBy: "TIMEOUT", reason });
+    const result = await expireLiveChatRoom(roomId, { endedBy: conn!.role === "owner" ? "OWNER" : "VISITOR", reason });
     if (!result) return;
     if (result.notice) {
         broadcastToRoom(roomId, { type: "message", message: result.notice });
@@ -332,7 +344,7 @@ export async function handleLiveClientMessage(ws: WebSocket, raw: string) {
 export function unregisterLiveConnection(ws: WebSocket) {
     const conn = connections.get(ws);
     if (conn) {
-        if (conn.roomId) {
+        if (conn.roomId && conn.role) {
             const sender: LiveChatSenderValue = conn.role === "owner" ? "OWNER" : "VISITOR";
             publishTyping(conn.roomId, sender, false);
         }

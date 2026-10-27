@@ -28,29 +28,31 @@ export async function GET(
         // Owner path (dashboard)
         const session = await getSession();
         if (session && session.user.id === room.bot.userId) {
-            return corsResponse({
+            const response = corsResponse({
                 room: serializeLiveRoom(room),
                 messages: await listLiveChatMessages(roomId),
                 typing: getRoomTyping(roomId),
             }, origin, room.bot.allowedOrigin);
+            response.headers.set("Cache-Control", "private, no-store");
+            return response;
         }
 
         // Visitor path
-        const visitorId = req.nextUrl.searchParams.get("visitorId") || undefined;
         const widgetApiKey = req.nextUrl.searchParams.get("widgetApiKey") || undefined;
         const authorized = authorizeLiveChatVisitor(req, {
             bot: room.bot,
             room,
-            visitorId,
             widgetApiKey,
         });
         if (!authorized.ok) return authorized.response;
 
-        return corsResponse({
+        const response = corsResponse({
             room: serializeLiveRoom(room),
             messages: await listLiveChatMessages(roomId),
             typing: getRoomTyping(roomId),
         }, origin, room.bot.allowedOrigin);
+        response.headers.set("Cache-Control", "private, no-store");
+        return response;
     } catch (error) {
         console.error("Get live chat room error:", error);
         return corsResponse({ error: "Failed to load live chat" }, origin, null, 500);

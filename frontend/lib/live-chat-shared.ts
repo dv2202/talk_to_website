@@ -32,7 +32,7 @@ export interface LiveChatRoomDto {
 }
 
 export type LiveWsClientMessage =
-    | { type: "hello"; role: "visitor"; botId: string; roomId: string; visitorId?: string; sessionId: string }
+    | { type: "hello"; role: "visitor"; botId: string; roomId: string; visitorAccessToken: string }
     | { type: "hello"; role: "owner"; botId: string; token: string }
     | { type: "join-room"; roomId: string }
     | { type: "message"; roomId: string; content: string }

@@ -199,6 +199,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
       .sendLiveTyping(live.roomId, {
         isTyping,
         widgetApiKey: botConfig?.widgetApiKey || undefined,
+        visitorAccessToken: botConfig?.id ? getStoredVisitorAccessToken(botConfig.id) || undefined : undefined,
       })
       .catch(() => { });
   }, [botConfig]);
@@ -302,6 +303,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
           reason ||
           (live.status === "waiting" ? "visitor-timeout" : "visitor-left"),
         widgetApiKey: botConfig?.widgetApiKey || undefined,
+        visitorAccessToken: botConfig?.id ? getStoredVisitorAccessToken(botConfig.id) || undefined : undefined,
       };
       void api.expireLiveRoom(live.roomId, body).catch(() => { });
     }
@@ -368,7 +370,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
           role: "visitor",
           botId: botConfig?.id,
           roomId,
-          sessionId,
+          visitorAccessToken: botConfig?.id ? getStoredVisitorAccessToken(botConfig.id) : null,
         })
       );
     };
@@ -397,6 +399,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
     try {
       const data = await api.getLiveRoom(live.roomId, {
         widgetApiKey: botConfig?.widgetApiKey || undefined,
+        visitorAccessToken: botConfig?.id ? getStoredVisitorAccessToken(botConfig.id) || undefined : undefined,
       });
       const room = data?.room as { status?: string } | undefined;
       if (!room) return;
@@ -434,8 +437,10 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
         botName: botConfig.botName,
         widgetApiKey: botConfig.widgetApiKey || undefined,
         sessionId,
+        visitorAccessToken: getStoredVisitorAccessToken(botConfig.id) || undefined,
       });
       room = created as { id: string };
+      if (created.visitorAccessToken) storeVisitorAccessToken(botConfig.id, created.visitorAccessToken);
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       setActiveTab("messages");
@@ -471,7 +476,11 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
       if (liveRef.current?.status === "waiting") {
         const id = liveRef.current.roomId;
         void api
-          .expireLiveRoom(id, { reason: "visitor-timeout", widgetApiKey: botConfig?.widgetApiKey || undefined })
+          .expireLiveRoom(id, {
+            reason: "visitor-timeout",
+            widgetApiKey: botConfig?.widgetApiKey || undefined,
+            visitorAccessToken: botConfig?.id ? getStoredVisitorAccessToken(botConfig.id) || undefined : undefined,
+          })
           .catch(() => { });
         enterLiveExpired();
       }
@@ -496,6 +505,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
       const data = await api.sendLiveMessage(live.roomId, {
         content: text,
         widgetApiKey: botConfig?.widgetApiKey || undefined,
+        visitorAccessToken: botConfig?.id ? getStoredVisitorAccessToken(botConfig.id) || undefined : undefined,
       });
       const msg = data?.message as { id?: string } | undefined;
       if (msg?.id) {
