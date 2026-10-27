@@ -2,6 +2,11 @@ import { Bot } from "@prisma/client";
 import crypto from "crypto";
 import { prisma, withAccelerateRetry } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import {
+    createVisitorRecordToken,
+    issueVisitorAccessToken,
+    verifyVisitorAccessToken,
+} from "@/lib/visitor-access";
 
 export function getCorsHeaders(origin: string | null, allowedOrigin?: string | null) {
     const headers: Record<string, string> = {};
@@ -17,7 +22,7 @@ export function getCorsHeaders(origin: string | null, allowedOrigin?: string | n
     }
 
     headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
-    headers["Access-Control-Allow-Headers"] = "Content-Type, x-widget-api-key";
+    headers["Access-Control-Allow-Headers"] = "Content-Type, x-widget-api-key, x-visitor-access-token";
     headers["Access-Control-Max-Age"] = "86400";
 
     return headers;
@@ -327,6 +332,36 @@ export async function upsertVisitor(params: {
             lastSeenAt: now,
         },
     });
+}
+
+/** Anonymous visitor continuity. A caller-provided visitorId is never proof of identity. */
+export async function upsertAuthorizedVisitor(params: {
+    bot: Bot;
+    req: Request | NextRequest;
+    accessToken?: string;
+    sessionId?: string;
+    profile?: VisitorProfileInput;
+}): Promise<{ visitor: Awaited<ReturnType<typeof upsertVisitor>>; accessToken: string } | null> {
+    const { bot, req, accessToken, sessionId, profile } = params;
+    const verifiedId = accessToken
+        ? verifyVisitorAccessToken(accessToken, bot.id)
+        : null;
+    if (accessToken && !verifiedId) return null;
+
+    const visitor = await upsertVisitor({
+        bot,
+        req,
+        visitorId: verifiedId || undefined,
+        visitorToken: verifiedId ? undefined : createVisitorRecordToken(),
+        sessionId,
+        profile,
+    });
+    if (!visitor) return null;
+
+    return {
+        visitor,
+        accessToken: issueVisitorAccessToken(bot.id, visitor.id),
+    };
 }
 
 export function buildVisitorSummary(visitor: any) {

@@ -174,6 +174,7 @@ export const api = {
             sessionId?: string;
             visitorId?: string;
             visitorToken?: string;
+            visitorAccessToken?: string;
             visitorProfile?: Record<string, unknown>;
         },
         handlers: {
@@ -183,6 +184,7 @@ export const api = {
                 response: string;
                 createdAt: string;
                 visitorId: string | null;
+                visitorAccessToken: string | null;
                 fallbackContact?: {
                     type: "EMAIL" | "WHATSAPP" | "TELEGRAM" | "PHONE";
                     value: string;
@@ -219,6 +221,7 @@ export const api = {
             response: string;
             createdAt: string;
             visitorId: string | null;
+            visitorAccessToken: string | null;
             fallbackContact?: {
                 type: "EMAIL" | "WHATSAPP" | "TELEGRAM" | "PHONE";
                 value: string;
@@ -252,6 +255,7 @@ export const api = {
                     response?: string;
                     createdAt?: string;
                     visitorId?: string | null;
+                    visitorAccessToken?: string | null;
                     fallbackContact?: {
                         type: "EMAIL" | "WHATSAPP" | "TELEGRAM" | "PHONE";
                         value: string;
@@ -275,6 +279,7 @@ export const api = {
                         response: payload.response || "",
                         createdAt: payload.createdAt || "",
                         visitorId: payload.visitorId ?? null,
+                        visitorAccessToken: payload.visitorAccessToken ?? null,
                         fallbackContacts:
                             payload.fallbackContacts ??
                             (payload.fallbackContact ? [payload.fallbackContact] : null),
@@ -299,14 +304,17 @@ export const api = {
         botName?: string;
         visitorId?: string;
         visitorToken: string;
+        visitorAccessToken?: string;
         sessionId?: string;
         profile?: Record<string, unknown>;
     }) => fetchApi("/api/chat/visitor/register", {
         method: "POST",
         body: JSON.stringify(data),
     }),
-    getConversations: (botId: string, params?: { sessionId?: string; visitorId?: string }) =>
-        fetchApi(`/api/chat/${botId}`, { params }),
+    getConversations: (botId: string, visitorAccessToken: string) =>
+        fetchApi(`/api/chat/${botId}`, {
+            headers: { "X-Visitor-Access-Token": visitorAccessToken },
+        }),
     getAdminConversations: (botId: string) =>
         fetchApi(`/api/chat/admin/${botId}`),
     getAdminConversationDetails: (botId: string, visitorId: string) => {
