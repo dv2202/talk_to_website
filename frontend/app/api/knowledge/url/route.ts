@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, unauthorizedResponse } from "@/lib/auth-utils";
 import { discoverUrls } from "@/lib/services/scraper";
+import { assertSafeScrapeUrl } from "@/lib/services/safe-scrape-http";
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            new URL(url);
+            assertSafeScrapeUrl(url);
         } catch {
             return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
         }

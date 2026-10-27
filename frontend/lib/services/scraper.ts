@@ -1,18 +1,7 @@
-import { PlaywrightCrawler } from "@crawlee/playwright";
-
-// Store Crawlee data in a writable temp directory (required for serverless environments)
-process.env.CRAWLEE_STORAGE_DIR = "/tmp";
+import { assertSafeScrapeUrl, fetchPublicHtml } from "@/lib/services/safe-scrape-http";
 
 const MAX_URLS = 50;
 const MIN_USEFUL_CONTENT_LENGTH = 100;
-
-const BROWSER_USER_AGENT =
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-
-const FETCH_HEADERS = {
-    "User-Agent": BROWSER_USER_AGENT,
-    Accept: "text/html,application/xhtml+xml",
-};
 
 function isBlockedPage(title: string, content: string, url?: string): boolean {
     const haystack = `${title} ${content} ${url ?? ""}`.toLowerCase();
@@ -24,16 +13,7 @@ function isBlockedPage(title: string, content: string, url?: string): boolean {
 }
 
 async function fetchHtml(url: string): Promise<string> {
-    const response = await fetch(url, {
-        headers: FETCH_HEADERS,
-        redirect: "follow",
-    });
-
-    if (!response.ok) {
-        throw new Error(`Request failed with ${response.status} status code`);
-    }
-
-    return response.text();
+    return fetchPublicHtml(url);
 }
 
 function extractLinksFromHtml(html: string, baseUrl: string): string[] {
@@ -124,130 +104,15 @@ async function discoverUrlsWithFetch(homepageUrl: string): Promise<string[]> {
     );
 }
 
-async function discoverUrlsWithPlaywright(homepageUrl: string): Promise<string[]> {
-    const origin = new URL(homepageUrl).origin;
-    const discoveredUrls: string[] = [];
-
-    const crawler = new PlaywrightCrawler({
-        maxRequestsPerCrawl: 1,
-        maxRequestRetries: 1,
-        requestHandlerTimeoutSecs: 30,
-        navigationTimeoutSecs: 30,
-        useSessionPool: false,
-
-        launchContext: {
-            launchOptions: {
-                headless: true,
-            },
-        },
-
-        preNavigationHooks: [
-            async ({ page }) => {
-                await page.setExtraHTTPHeaders(FETCH_HEADERS);
-            },
-        ],
-
-        async requestHandler({ page, log }) {
-            log.info(`Discovering links from ${homepageUrl}`);
-            await page.waitForLoadState("networkidle");
-
-            const links = await page.evaluate(() => {
-                const anchors = document.querySelectorAll("a[href]");
-                return Array.from(anchors).map((a) => (a as HTMLAnchorElement).href);
-            });
-
-            const valid = links.filter((l) => l.startsWith("http") && isRelevantUrl(l, origin));
-            discoveredUrls.push(...valid);
-        },
-
-        headless: true,
-    });
-
-    await crawler.run([homepageUrl]);
-    return dedupeAndLimitUrls(discoveredUrls);
-}
-
-async function scrapePageContentWithPlaywright(
-    urls: string[]
-): Promise<{ url: string; title: string; content: string }[]> {
-    const results: { url: string; title: string; content: string }[] = [];
-
-    const crawler = new PlaywrightCrawler({
-        maxRequestsPerCrawl: Math.min(urls.length, MAX_URLS),
-        maxRequestRetries: 1,
-        requestHandlerTimeoutSecs: 30,
-        navigationTimeoutSecs: 30,
-        useSessionPool: false,
-
-        launchContext: {
-            launchOptions: {
-                headless: true,
-            },
-        },
-
-        preNavigationHooks: [
-            async ({ page }) => {
-                await page.setExtraHTTPHeaders(FETCH_HEADERS);
-            },
-        ],
-
-        async requestHandler({ page, request, log }) {
-            log.info(`Scraping content from ${request.url}`);
-            await page.waitForLoadState("networkidle");
-
-            const extracted = await page.evaluate(() => {
-                const remove = document.querySelectorAll(
-                    "script, style, nav, header, footer, iframe, noscript, .sidebar, .menu"
-                );
-                remove.forEach((el) => el.remove());
-
-                return {
-                    title: document.title || "",
-                    content: document.body?.innerText?.trim() || "",
-                };
-            });
-
-            results.push({
-                url: request.loadedUrl || request.url,
-                title: extracted.title,
-                content: extracted.content,
-            });
-        },
-
-        headless: true,
-    });
-
-    await crawler.run(urls);
-    return results;
-}
-
 /**
  * Visit a homepage URL and discover all http/https links on the page.
  * Returns a sorted, deduplicated array of discovered URLs.
  */
 export async function discoverUrls(homepageUrl: string): Promise<string[]> {
-    let fetchError: Error | null = null;
-
-    try {
-        const fetchUrls = await discoverUrlsWithFetch(homepageUrl);
-        const usefulLinks = fetchUrls.filter((url) => !isBlockedPage("", "", url));
-        if (usefulLinks.length >= 2) {
-            return usefulLinks;
-        }
-    } catch (error) {
-        fetchError = error instanceof Error ? error : new Error("Fetch discovery failed");
-    }
-
-    const playwrightUrls = await discoverUrlsWithPlaywright(homepageUrl);
-    const usefulPlaywrightLinks = playwrightUrls.filter((url) => !isBlockedPage("", "", url));
-    if (usefulPlaywrightLinks.length > 0) {
-        return usefulPlaywrightLinks;
-    }
-
-    throw new Error(
-        fetchError?.message ||
-            "Could not access the website. The site may block automated access or returned no links."
-    );
+    assertSafeScrapeUrl(homepageUrl);
+    const fetchUrls = await discoverUrlsWithFetch(homepageUrl);
+    const usefulLinks = fetchUrls.filter((url) => !isBlockedPage("", "", url));
+    return usefulLinks.length ? usefulLinks : [homepageUrl];
 }
 
 /**
@@ -257,6 +122,7 @@ export async function discoverUrls(homepageUrl: string): Promise<string[]> {
 export async function scrapePageContent(
     urls: string[]
 ): Promise<{ url: string; title: string; content: string }[]> {
+    urls.forEach(assertSafeScrapeUrl);
     const results = new Map<string, { url: string; title: string; content: string }>();
 
     for (const url of urls.slice(0, MAX_URLS)) {
@@ -267,17 +133,7 @@ export async function scrapePageContent(
                 results.set(url, { url, ...extracted });
             }
         } catch {
-            // Retry with Playwright below.
-        }
-    }
-
-    const missingUrls = urls.filter((url) => !results.has(url));
-    if (missingUrls.length > 0) {
-        const playwrightResults = await scrapePageContentWithPlaywright(missingUrls);
-        for (const result of playwrightResults) {
-            if (isUsefulScrapedContent(result.title, result.content, result.url)) {
-                results.set(result.url, result);
-            }
+            // Skip pages that cannot be safely retrieved.
         }
     }
 

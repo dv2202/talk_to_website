@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, unauthorizedResponse } from "@/lib/auth-utils";
 import { scrapePageContent } from "@/lib/services/scraper";
+import { assertSafeScrapeUrl } from "@/lib/services/safe-scrape-http";
 
 export async function POST(req: NextRequest) {
     try {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
         // Validate all URLs
         for (const u of urls) {
             try {
-                new URL(u);
+                assertSafeScrapeUrl(u);
             } catch {
                 return NextResponse.json({ error: `Invalid URL: ${u}` }, { status: 400 });
             }
