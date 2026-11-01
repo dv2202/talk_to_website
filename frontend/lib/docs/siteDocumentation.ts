@@ -1,4 +1,4 @@
-export const SUPPORT_EMAIL = "contact@botwebai.com";
+export const SUPPORT_EMAIL = "vdevwish12312@gmail.com";
 
 export type DocSection = {
   id: string;
@@ -56,7 +56,7 @@ STARTER — ₹999 / month
 - 1,000 conversations / 30 days
 - Chat mode
 - No BotWebAI branding
-- Email support at contact@botwebai.com
+- Email support at vdevwish12312@gmail.com
 Best for solo founders launching their first AI assistant.
 
 PRO — ₹1,999 / month (Most popular)
@@ -64,7 +64,7 @@ PRO — ₹1,999 / month (Most popular)
 - 2,500 conversations / 30 days
 - Chat mode
 - No BotWebAI branding
-- Priority support at contact@botwebai.com
+- Priority support at vdevwish12312@gmail.com
 Best for growing teams that need more assistants and higher usage.
 
 You can upgrade, renew, or manage billing from Dashboard > Billing. Cancel anytime — access continues until the end of your current billing period.`,
@@ -81,7 +81,7 @@ You can upgrade, renew, or manage billing from Dashboard > Billing. Cancel anyti
 5. Visitors ask questions; the assistant answers using your knowledge base.
 6. Review conversations in the dashboard and update knowledge anytime.
 
-Answers are grounded in your verified sources. If the assistant is unsure, it can stay within the scope you define in the system prompt or guide visitors to contact the BotWebAI team at contact@botwebai.com.`,
+Answers are grounded in your verified sources. If the assistant is unsure, it can stay within the scope you define in the system prompt or guide visitors to contact the BotWebAI team at vdevwish12312@gmail.com.`,
   },
   {
     id: "setup-time",
@@ -206,10 +206,10 @@ Chat data:
     id: "faq",
     title: "Frequently Asked Questions",
     body: `Q: Will the AI give wrong answers?
-A: BotWebAI answers from your verified knowledge base. When confidence is low, it can stay within the scope you define or guide visitors to your team at contact@botwebai.com. Answers are based on your content, not general internet knowledge.
+A: BotWebAI answers from your verified knowledge base. When confidence is low, it can stay within the scope you define or guide visitors to your team at vdevwish12312@gmail.com. Answers are based on your content, not general internet knowledge.
 
 Q: How can I connect with your team / contact support?
-A: Email the BotWebAI team at contact@botwebai.com. Starter includes email support and Pro includes priority support. We aim to respond within 24 to 48 hours on business days.
+A: Email the BotWebAI team at vdevwish12312@gmail.com. Starter includes email support and Pro includes priority support. We aim to respond within 24 to 48 hours on business days.
 
 Q: How long does setup take?
 A: Most teams go live in under 10 minutes. Import your content and add one script tag.
@@ -243,7 +243,7 @@ A: Yes. Cancel from Dashboard > Billing. You keep access until the end of your c
     title: "Contact Support",
     body: `Need help with BotWebAI? Contact support:
 
-Email: contact@botwebai.com
+Email: vdevwish12312@gmail.com
 
 When reaching out, please include:
 - Your account email
@@ -268,7 +268,7 @@ export function documentationToMarkdown(): string {
     "# BotWebAI — Product Documentation",
     "",
     "This document covers how to use BotWebAI.",
-    "For support, email: contact@botwebai.com",
+    "For support, email: vdevwish12312@gmail.com",
     "",
   ];
 

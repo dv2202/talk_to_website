@@ -1,34 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import { recordSubscriptionRenewal } from "@/lib/billing";
 import { isPaidPlanId, type PaidPlanId } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
-
-function verifyWebhookSignature(
-    rawBody: string,
-    signature: string | null,
-    secret: string
-) {
-    if (!signature) return false;
-    const expected = crypto
-        .createHmac("sha256", secret)
-        .update(rawBody)
-        .digest("hex");
-    const expectedBuf = Buffer.from(expected, "utf8");
-    const receivedBuf = Buffer.from(signature, "utf8");
-    return (
-        expectedBuf.length === receivedBuf.length &&
-        crypto.timingSafeEqual(expectedBuf, receivedBuf)
-    );
-}
+import { authenticateRazorpayWebhook } from "@/lib/razorpay-webhook";
 
 export async function POST(req: NextRequest) {
     try {
-        const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim();
+        const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
         const rawBody = await req.text();
         const signature = req.headers.get("x-razorpay-signature");
+        const authentication = authenticateRazorpayWebhook(rawBody, signature, secret);
 
-        if (secret && !verifyWebhookSignature(rawBody, signature, secret)) {
+        if (authentication === "missing-secret") {
+            console.error("RAZORPAY_WEBHOOK_SECRET is not configured");
+            return NextResponse.json(
+                { error: "Webhook unavailable" },
+                { status: 503 }
+            );
+        }
+
+        if (authentication !== "valid") {
             return NextResponse.json(
                 { error: "Invalid webhook signature" },
                 { status: 400 }
