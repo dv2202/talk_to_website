@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { buildRecentHistoryQuery } from "@/lib/visitor-access";
-import { paceStreamByWords, streamChatVertexAI } from "@/lib/gemini";
+import { invokeChatVertexAI, paceStreamByWords, streamChatVertexAI } from "@/lib/gemini";
 import {
     findBot,
     getKnowledgeSourceContents,
@@ -15,7 +15,7 @@ import {
     upsertAuthorizedVisitor,
     VisitorProfileInput
 } from "@/lib/chat-utils";
-import { retrieveRelevantChunks, buildRAGPrompt, buildPromptGuardrails } from "@/lib/rag";
+import { retrieveRelevantChunks, buildRAGPrompt, buildPromptGuardrails, rewriteQueryForRetrieval } from "@/lib/rag";
 import { assertCanCreateConversation, EntitlementError } from "@/lib/entitlements";
 import {
     getStreamableResponse,
@@ -121,10 +121,26 @@ export async function POST(req: NextRequest) {
             .map((conversation: any) => `User: ${conversation.userMessage}\nAssistant: ${conversation.aiResponse}`)
             .join("\n\n");
 
+        // Follow-ups like "what's its price?" carry no subject on their own, so
+        // resolve them against recent turns before embedding. The original
+        // message is still what the LLM answers and what gets stored.
+        const retrievalQuery = await rewriteQueryForRetrieval({
+            message,
+            history: recentConversations,
+            invoke: (prompt) =>
+                invokeChatVertexAI({
+                    ...prompt,
+                    type: "text",
+                    userId: bot.userId,
+                    sessionId: sessionId || undefined,
+                    metadata: { botId: bot.id, botName: bot.name, purpose: "query-rewrite" },
+                }),
+        });
+
         // Try RAG retrieval first
         const retrievedChunks = await retrieveRelevantChunks({
             botId: bot.id,
-            query: message,
+            query: retrievalQuery,
         });
 
         const configuredContacts = parseBotFallbackContacts(bot);

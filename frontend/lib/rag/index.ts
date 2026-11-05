@@ -30,3 +30,5 @@ export {
 } from './services/knowledgeBaseService';
 export { queryWithRAG } from './services/ragService';
 export type { RAGResponse } from './services/ragService';
+export { rewriteQueryForRetrieval } from './query/queryRewriter';
+export type { HistoryTurn, RewriteInvoke } from './query/queryRewriter';
