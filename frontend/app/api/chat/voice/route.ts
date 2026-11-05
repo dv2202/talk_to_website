@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { buildRecentHistoryQuery } from "@/lib/visitor-access";
 import { invokeChatVertexAI, invokeChatVertexAIMultimodal } from "@/lib/gemini";
 import {
     findBot,
@@ -107,18 +108,14 @@ export async function POST(req: NextRequest) {
         }
         const visitor = authorized.visitor;
 
-        const recentConversations = await prisma.conversation.findMany({
-            where: {
-                botId: bot.id,
-                ...(visitor?.id
-                    ? { visitorId: visitor.id }
-                    : sessionId
-                      ? { sessionId }
-                      : {}),
-            },
-            orderBy: { createdAt: "desc" },
-            take: 10,
+        const historyQuery = buildRecentHistoryQuery({
+            botId: bot.id,
+            visitorId: visitor?.id,
+            sessionId,
         });
+        const recentConversations = historyQuery
+            ? await prisma.conversation.findMany(historyQuery)
+            : [];
 
         const conversationHistory = recentConversations
             .reverse()

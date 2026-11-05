@@ -101,3 +101,31 @@ export async function readVisitorHistory<T>(
         take: 50,
     });
 }
+
+export const RECENT_HISTORY_TURNS = 10;
+
+type RecentHistoryQuery = {
+    where: { botId: string; visitorId: string; sessionId: string };
+    orderBy: { createdAt: "desc" };
+    take: number;
+};
+
+/**
+ * Builds the query for the conversation history fed to the LLM. History is
+ * scoped to one visitor *and* one browser session, so earlier visits never
+ * leak into the current answer. Returns null when either identifier is
+ * missing: callers must then use no history rather than widening the filter.
+ */
+export function buildRecentHistoryQuery(params: {
+    botId: string;
+    visitorId?: string | null;
+    sessionId?: string | null;
+}): RecentHistoryQuery | null {
+    const { botId, visitorId, sessionId } = params;
+    if (!botId || !visitorId || !sessionId) return null;
+    return {
+        where: { botId, visitorId, sessionId },
+        orderBy: { createdAt: "desc" },
+        take: RECENT_HISTORY_TURNS,
+    };
+}
