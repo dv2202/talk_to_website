@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about BotWebAI — AI customer support grounded in your own content, with production-grade RAG and a one-line embed.",
+    "Learn about TalkToWebsite — AI customer support grounded in your own content, with production-grade RAG and a one-line embed.",
 };
 
 const values = [
@@ -43,7 +43,7 @@ export default function AboutPage() {
             <span className="text-muted-foreground">knows your business</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            BotWebAI helps teams deliver accurate, 24/7 customer support from their own docs, FAQs,
+            TalkToWebsite helps teams deliver accurate, 24/7 customer support from their own docs, FAQs,
             and website — without building AI infrastructure from scratch.
           </p>
         </div>
@@ -60,7 +60,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-                BotWebAI is an AI customer support platform that lets businesses build intelligent
+                TalkToWebsite is an AI customer support platform that lets businesses build intelligent
                 assistants grounded in their own content. Visitors get accurate answers from your
                 knowledge base — not generic guesses.
               </p>
@@ -96,7 +96,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-[1400px] px-6 text-center lg:px-12">
           <h2 className="font-display text-4xl tracking-tight sm:text-5xl">Want to talk with us?</h2>
           <p className="mx-auto mt-4 max-w-xl text-white/60">
-            Questions about BotWebAI, plans, or getting started — we&apos;re happy to help.
+            Questions about TalkToWebsite, plans, or getting started — we&apos;re happy to help.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button

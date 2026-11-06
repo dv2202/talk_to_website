@@ -13,8 +13,7 @@ export const auth = betterAuth({
     trustedOrigins: [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://botwebai.com",
-        "https://www.botwebai.com",
+        "https://talk-to-website.vercel.app",
         process.env.NEXT_PUBLIC_APP_URL || "",
         process.env.BETTER_AUTH_URL || "",
     ].filter(Boolean),

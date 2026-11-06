@@ -105,9 +105,9 @@ export default function LoginPage() {
       <div className="relative flex min-h-screen flex-col bg-white px-6 py-6 sm:px-10 lg:px-14 xl:px-20 dark:bg-[#0e0f11]">
         <header className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="BotWebAI" width={32} height={32} className="h-8 w-8" />
+            <Image src="/logo.png" alt="TalkToWebsite" width={32} height={32} className="h-8 w-8" />
             <span className="text-lg font-semibold tracking-tight text-[#111] [font-family:var(--font-space)] dark:text-white">
-              BotWebAI
+              TalkToWebsite
             </span>
           </Link>
           <Link href="/signup">
@@ -239,7 +239,7 @@ export default function LoginPage() {
         </div>
 
         <footer className="flex items-center justify-between text-xs text-zinc-400">
-          <p>© {new Date().getFullYear()} BotWebAI</p>
+          <p>© {new Date().getFullYear()} TalkToWebsite</p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-zinc-600 dark:hover:text-zinc-300">
               Terms

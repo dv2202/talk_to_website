@@ -6,7 +6,7 @@
 
   const botName = scriptTag.getAttribute("data-bot");
   if (!botName) {
-    console.error("[BotWebAI] Missing data-bot attribute");
+    console.error("[TalkToWebsite] Missing data-bot attribute");
     return;
   }
 
@@ -14,12 +14,13 @@
     scriptTag.getAttribute("data-api-key") ||
     scriptTag.getAttribute("data-key");
   if (!widgetApiKey) {
-    console.warn("[BotWebAI] Missing data-api-key attribute. Visitor widget flows may fail.");
+    console.warn("[TalkToWebsite] Missing data-api-key attribute. Visitor widget flows may fail.");
   }
 
   const backendUrl =
     scriptTag.getAttribute("data-api") ||
     scriptTag.src.replace(/\/api\/widget\/widget\.js.*$/, "").replace(/\/widget\.js.*$/, "");
+  const brandUrl = new URL(scriptTag.src).origin;
 
   const suggestedQuestions = [
     "What do you do?",
@@ -1403,7 +1404,7 @@
                 </div>
                 <div class="ttw-footer">
                   <div class="ttw-powered">
-                    <span>Powered by <a href="https://botwebai.com" target="_blank" rel="noopener noreferrer">BotWebAI</a></span>
+                    <span>Powered by <a href="${brandUrl}" target="_blank" rel="noopener noreferrer">TalkToWebsite</a></span>
                   </div>
                 </div>
               </div>
@@ -2150,7 +2151,7 @@
       return true;
     } catch (error) {
       query("#ttw-form-error").textContent = "Could not start the chat. Please try again.";
-      console.error("[BotWebAI] Visitor registration failed:", error);
+      console.error("[TalkToWebsite] Visitor registration failed:", error);
       return false;
     } finally {
       isRegistering = false;
@@ -2797,7 +2798,7 @@
       if (!res.ok) throw new Error("Bot not found");
       botConfig = await res.json();
     } catch (error) {
-      console.error("[BotWebAI] Failed to load bot config:", error);
+      console.error("[TalkToWebsite] Failed to load bot config:", error);
       return;
     }
 
@@ -2842,7 +2843,7 @@
         : rawWidgetBg;
     root.style.setProperty("--ttw-widget-bg", widgetBg);
 
-    // Free plans show BotWebAI branding; paid plans hide it
+    // Free plans show TalkToWebsite branding; paid plans hide it
     const poweredEl = query(".ttw-powered");
     if (poweredEl) {
       poweredEl.style.display = botConfig.showBranding === false ? "none" : "";

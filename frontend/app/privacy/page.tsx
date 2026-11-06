@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 import { LegalPageShell } from "@/components/LegalPageShell";
 import { SUPPORT_EMAIL } from "@/lib/docs/siteDocumentation";
+import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How BotWebAI collects, uses, and protects personal data for account holders, website visitors, and chatbot end users.",
+    "How TalkToWebsite collects, uses, and protects personal data for account holders, website visitors, and chatbot end users.",
 };
 
 const EFFECTIVE_DATE = "August 6, 2026";
+const SITE_HOST = new URL(SITE_URL).host;
 
 const sections = [
   {
     title: "1. Who we are",
     paragraphs: [
-      `BotWebAI ("BotWebAI", "we", "us", or "our") provides an AI customer support platform at botwebai.com. Businesses use BotWebAI to build AI assistants grounded in their own knowledge (PDFs, text files, and website URLs), embed a chat widget on their sites, and review conversations in a dashboard.`,
+      `TalkToWebsite ("TalkToWebsite", "we", "us", or "our") provides an AI customer support platform at ${SITE_HOST}. Businesses use TalkToWebsite to build AI assistants grounded in their own knowledge (PDFs, text files, and website URLs), embed a chat widget on their sites, and review conversations in a dashboard.`,
       `This Privacy Policy explains what information we collect, how we use it, and the choices available to you. For questions, contact us at ${SUPPORT_EMAIL}.`,
     ],
   },
@@ -24,12 +26,12 @@ const sections = [
       "We process personal data for three main groups:",
     ],
     bullets: [
-      "Account holders — people who create a BotWebAI account to build and manage assistants.",
-      "Website visitors on botwebai.com — people who browse our marketing site, contact us, or use public pages.",
-      "End users of customer assistants — people who chat with a BotWebAI widget or standalone bot page hosted by one of our customers.",
+      "Account holders — people who create a TalkToWebsite account to build and manage assistants.",
+      `Website visitors on ${SITE_HOST} — people who browse our marketing site, contact us, or use public pages.`,
+      "End users of customer assistants — people who chat with a TalkToWebsite widget or standalone bot page hosted by one of our customers.",
     ],
     afterBullets: [
-      "If you use a chatbot embedded by a BotWebAI customer, that customer is typically the primary controller of the conversation data related to their business. We process that data to provide the Service on their behalf.",
+      "If you use a chatbot embedded by a TalkToWebsite customer, that customer is typically the primary controller of the conversation data related to their business. We process that data to provide the Service on their behalf.",
     ],
   },
   {
@@ -48,7 +50,7 @@ const sections = [
   {
     title: "4. How we use information",
     bullets: [
-      "Provide, operate, and improve the BotWebAI platform, including RAG answers, widgets, dashboards, and billing.",
+      "Provide, operate, and improve the TalkToWebsite platform, including RAG answers, widgets, dashboards, and billing.",
       "Authenticate users, protect accounts, and prevent abuse or fraud.",
       "Send transactional emails (verification codes, password resets, billing notices).",
       "Process payments and manage Free, Starter, and Pro subscriptions.",
@@ -60,7 +62,7 @@ const sections = [
   {
     title: "5. AI processing",
     paragraphs: [
-      "To answer questions, BotWebAI sends relevant knowledge snippets and conversation context to AI and embedding providers (such as OpenAI and/or Google Gemini, depending on configuration). Those providers process the content needed to generate embeddings or replies. Do not upload secrets or data you are not allowed to process under applicable law.",
+      "To answer questions, TalkToWebsite sends relevant knowledge snippets and conversation context to AI and embedding providers (such as OpenAI and/or Google Gemini, depending on configuration). Those providers process the content needed to generate embeddings or replies. Do not upload secrets or data you are not allowed to process under applicable law.",
       "Answers are intended to be grounded in the knowledge you supply. Model outputs can still be imperfect; customers remain responsible for how they use AI replies with their own end users.",
     ],
   },
@@ -78,14 +80,14 @@ const sections = [
       "Professional advisors or authorities when required by law or to protect rights and safety.",
     ],
     afterBullets: [
-      "Customer account holders can access conversation and visitor data collected through their own assistants. BotWebAI staff may access account data as needed for support, security, billing, or abuse investigation.",
+      "Customer account holders can access conversation and visitor data collected through their own assistants. TalkToWebsite staff may access account data as needed for support, security, billing, or abuse investigation.",
     ],
   },
   {
     title: "7. Roles for customer chatbots",
     paragraphs: [
-      "If you are a BotWebAI customer, you decide what knowledge to upload, which domains may host your widget, whether visitors are asked for contact details, and how you use conversation history. You are responsible for providing appropriate notices and obtaining any consents required for your end users under laws that apply to you (including privacy and marketing rules).",
-      "If you are chatting with a customer’s BotWebAI assistant, that customer’s privacy practices also apply. You can ask that business how they use your messages and contact details, or contact us at the email above and we will help route the request where appropriate.",
+      "If you are a TalkToWebsite customer, you decide what knowledge to upload, which domains may host your widget, whether visitors are asked for contact details, and how you use conversation history. You are responsible for providing appropriate notices and obtaining any consents required for your end users under laws that apply to you (including privacy and marketing rules).",
+      "If you are chatting with a customer’s TalkToWebsite assistant, that customer’s privacy practices also apply. You can ask that business how they use your messages and contact details, or contact us at the email above and we will help route the request where appropriate.",
     ],
   },
   {
@@ -103,7 +105,7 @@ const sections = [
   {
     title: "10. International transfers",
     paragraphs: [
-      "BotWebAI may process data in India and in other countries where our providers operate. Where data is transferred internationally, we take steps designed to ensure an appropriate level of protection consistent with this Policy and applicable law.",
+      "TalkToWebsite may process data in India and in other countries where our providers operate. Where data is transferred internationally, we take steps designed to ensure an appropriate level of protection consistent with this Policy and applicable law.",
     ],
   },
   {
@@ -116,7 +118,7 @@ const sections = [
   {
     title: "12. Children’s privacy",
     paragraphs: [
-      "BotWebAI is directed at businesses and adult users. The Service is not intended for children under 16 (or the minimum age required in your jurisdiction). We do not knowingly collect personal information from children. If you believe a child has provided us personal data, contact us and we will take appropriate steps.",
+      "TalkToWebsite is directed at businesses and adult users. The Service is not intended for children under 16 (or the minimum age required in your jurisdiction). We do not knowingly collect personal information from children. If you believe a child has provided us personal data, contact us and we will take appropriate steps.",
     ],
   },
   {
@@ -129,7 +131,7 @@ const sections = [
     title: "14. Contact",
     paragraphs: [
       `Privacy inquiries: ${SUPPORT_EMAIL}`,
-      "Website: https://botwebai.com",
+      `Website: ${SITE_URL}`,
     ],
   },
 ];
@@ -139,7 +141,7 @@ export default function PrivacyPage() {
     <LegalPageShell
       eyebrow="Legal"
       title="Privacy Policy"
-      subtitle="How BotWebAI collects, uses, and protects information across accounts, billing, and AI assistants."
+      subtitle="How TalkToWebsite collects, uses, and protects information across accounts, billing, and AI assistants."
       effectiveDate={EFFECTIVE_DATE}
       sections={sections}
       otherLegalHref="/terms"

@@ -83,7 +83,7 @@ export function MarketingNav({
           <Link href="/" className="group flex items-center gap-2.5" id="nav-logo">
             <Image
               src="/logo.png"
-              alt="BotWebAI"
+              alt="TalkToWebsite"
               width={36}
               height={36}
               className={cn(
@@ -94,14 +94,14 @@ export function MarketingNav({
             <span
               className={cn(
                 "font-display tracking-tight text-primary transition-all duration-500",
-                scrolled ? "text-xl" : "text-2xl"
+                scrolled ? "text-xl" : "text-2xl md:text-xl lg:text-2xl"
               )}
             >
-              BotWebAI
+              TalkToWebsite
             </span>
           </Link>
 
-          <div className="hidden items-center gap-12 md:flex">
+          <div className="hidden items-center gap-12 md:flex md:gap-4 lg:gap-12">
             {links.map((link) => (
               <Link
                 key={link.name}

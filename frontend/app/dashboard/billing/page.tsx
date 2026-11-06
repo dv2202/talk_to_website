@@ -354,7 +354,7 @@ export default function BillingPage() {
                                     {plan.isPaid ? (
                                         <RazorpayCheckout
                                             planId={plan.id as PaidPlanId}
-                                            description={`BotWebAI ${plan.name} plan`}
+                                            description={`TalkToWebsite ${plan.name} plan`}
                                             label={
                                                 current
                                                     ? `Renew ${formatPlanPrice(plan)}`

@@ -5,10 +5,10 @@ export type OtpEmailType = "sign-up" | "email-verification" | "forget-password" 
 export type BillingEmailType = "subscribe" | "renew" | "cancel";
 
 const SUBJECTS: Record<OtpEmailType, string> = {
-  "sign-up": "Verify your BotWebAI account",
+  "sign-up": "Verify your TalkToWebsite account",
   "email-verification": "Verify your email address",
-  "forget-password": "Reset your BotWebAI password",
-  "sign-in": "Your BotWebAI sign-in code",
+  "forget-password": "Reset your TalkToWebsite password",
+  "sign-in": "Your TalkToWebsite sign-in code",
 };
 
 function escapeHtml(value: string): string {
@@ -36,7 +36,7 @@ function buildEmailShell(bodyHtml: string): string {
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f6f7f9; padding:32px;">
   <div style="max-width:440px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;border:1px solid #e5e7eb;">
-    <h1 style="margin:0 0 8px;font-size:20px;color:#111;">BotWebAI</h1>
+    <h1 style="margin:0 0 8px;font-size:20px;color:#111;">TalkToWebsite</h1>
     ${bodyHtml}
   </div>
 </body>
@@ -170,7 +170,7 @@ export async function sendBillingEmail(params: {
   let details: Array<{ label: string; value: string }>;
 
   if (type === "subscribe") {
-    subject = `You're subscribed to BotWebAI ${planName}`;
+    subject = `You're subscribed to TalkToWebsite ${planName}`;
     intro = `Thanks for subscribing. Your ${planName} plan is now active.`;
     details = [
       { label: "Plan", value: planName },
@@ -180,7 +180,7 @@ export async function sendBillingEmail(params: {
     footer =
       "You can manage or cancel your subscription anytime from Billing in your dashboard.";
   } else if (type === "renew") {
-    subject = `Your BotWebAI ${planName} plan was renewed`;
+    subject = `Your TalkToWebsite ${planName} plan was renewed`;
     intro = `Your ${planName} plan payment went through and your billing period has been extended.`;
     details = [
       { label: "Plan", value: planName },
@@ -190,7 +190,7 @@ export async function sendBillingEmail(params: {
     footer =
       "You can manage or cancel your subscription anytime from Billing in your dashboard.";
   } else {
-    subject = `Your BotWebAI ${planName} plan has been cancelled`;
+    subject = `Your TalkToWebsite ${planName} plan has been cancelled`;
     intro = `Your ${planName} plan is cancelled. You’ll keep paid access until the end of the current billing period, then move to Free.`;
     details = [
       { label: "Plan", value: planName },
@@ -243,7 +243,7 @@ export async function sendContactEmail(params: {
 
   const html = buildEmailShell(`
     <p style="margin:0 0 8px;color:#111;font-size:16px;font-weight:600;">New contact message</p>
-    <p style="margin:0 0 20px;color:#52525b;font-size:14px;line-height:1.5;">Someone submitted the contact form on BotWebAI.</p>
+    <p style="margin:0 0 20px;color:#52525b;font-size:14px;line-height:1.5;">Someone submitted the contact form on TalkToWebsite.</p>
     <div style="background:#f4f4f5;border-radius:8px;padding:8px 16px;">
       <table style="width:100%;border-collapse:collapse;">
         <tbody>

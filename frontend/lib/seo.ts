@@ -1,16 +1,16 @@
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://botwebai.com";
+  (process.env.NEXT_PUBLIC_APP_URL || "https://talk-to-website.vercel.app").replace(/\/$/, "");
 
-export const SITE_NAME = "BotWebAI";
+export const SITE_NAME = "TalkToWebsite";
 
 export const SITE_TITLE =
-  "BotWebAI — AI Website Widget & Customer Support Chatbot";
+  "TalkToWebsite — AI Website Widget & Customer Support Chatbot";
 
 export const SITE_DESCRIPTION =
-  "Embed an AI website widget for 24/7 customer support. BotWebAI adds RAG-grounded AI chatbot integration, AI support automation, and one-script embed for any website.";
+  "Embed an AI website widget for 24/7 customer support. TalkToWebsite adds RAG-grounded AI chatbot integration, AI support automation, and one-script embed for any website.";
 
 export const SITE_KEYWORDS = [
-  "BotWebAI",
+  "TalkToWebsite",
   "website widget AI",
   "AI website widget",
   "AI chatbot widget",

@@ -7,7 +7,7 @@ import { SITE_DOCUMENTATION, SUPPORT_EMAIL } from "@/lib/docs/siteDocumentation"
 export const metadata: Metadata = {
   title: "Documentation",
   description:
-    "BotWebAI documentation: setup, usage, features, pricing plans, widget embed, FAQ, and support contact.",
+    "TalkToWebsite documentation: setup, usage, features, pricing plans, widget embed, FAQ, and support contact.",
 };
 
 export default function DocsPage() {
@@ -21,10 +21,10 @@ export default function DocsPage() {
             Documentation
           </p>
           <h1 className="font-display text-5xl leading-[1.05] tracking-tight sm:text-6xl">
-            BotWebAI Docs
+            TalkToWebsite Docs
           </h1>
           <p className="text-lg leading-relaxed text-muted-foreground">
-            Everything about BotWebAI — setup, usage, features, how it works, and support.
+            Everything about TalkToWebsite — setup, usage, features, how it works, and support.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">

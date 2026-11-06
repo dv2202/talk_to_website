@@ -31,7 +31,7 @@ export function WidgetScript() {
       )}
       {shouldLoad && (
         <script
-          src={`${process.env.NEXT_PUBLIC_APP_URL}/api/widget/widget.js`}
+          src="/api/widget/widget.js"
           data-bot="bot-web-ai"
           data-api-key="ttw_0b5fbc1e3a468fb6bb8d2719d048fe8791b7495afa765573"
         />

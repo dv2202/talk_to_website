@@ -106,9 +106,9 @@ function loadRazorpayScript() {
 
 export function RazorpayCheckout({
     planId,
-    description = "BotWebAI monthly subscription",
+    description = "TalkToWebsite monthly subscription",
     label = "Subscribe",
-    name = "BotWebAI",
+    name = "TalkToWebsite",
     prefill,
     onSuccess,
     onError,

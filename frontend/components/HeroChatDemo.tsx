@@ -204,7 +204,7 @@ export function HeroChatDemo() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[15px] font-semibold tracking-tight text-white">
-                  BotWebAI
+                  TalkToWebsite
                 </p>
                 <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-white/80">
                   <span className="font-medium text-[#b8f5d4]">Online</span>

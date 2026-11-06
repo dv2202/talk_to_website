@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/seo";
+
 export const SUPPORT_EMAIL = "vdevwish12312@gmail.com";
 
 export type DocSection = {
@@ -9,16 +11,16 @@ export type DocSection = {
 export const SITE_DOCUMENTATION: DocSection[] = [
   {
     id: "overview",
-    title: "About BotWebAI",
-    body: `BotWebAI is an AI customer support platform that lets businesses build intelligent assistants grounded in their own content. Visitors get accurate answers from your knowledge base — not generic guesses.
+    title: "About TalkToWebsite",
+    body: `TalkToWebsite is an AI customer support platform that lets businesses build intelligent assistants grounded in their own content. Visitors get accurate answers from your knowledge base — not generic guesses.
 
 You can import knowledge from PDF files, plain text files, and website URLs. Visitors interact through an embeddable chat widget on your site or a standalone chat page. Business owners manage assistants, knowledge sources, and conversations from a web dashboard.
 
-BotWebAI is built for teams who want 24/7 AI support without building and maintaining their own AI infrastructure.`,
+TalkToWebsite is built for teams who want 24/7 AI support without building and maintaining their own AI infrastructure.`,
   },
   {
     id: "what-it-can-do",
-    title: "What BotWebAI Can Do",
+    title: "What TalkToWebsite Can Do",
     body: `Core capabilities:
 
 1. AI Customer Support Chat — Answer visitor questions 24/7 using content from your knowledge base.
@@ -42,20 +44,20 @@ BotWebAI is built for teams who want 24/7 AI support without building and mainta
   {
     id: "pricing",
     title: "Pricing Plans",
-    body: `BotWebAI offers three plans. All paid plans are billed monthly in INR.
+    body: `TalkToWebsite offers three plans. All paid plans are billed monthly in INR.
 
 Free plan — ₹0 / month
 - 1 AI assistant
 - 100 conversations monthly
 - Chat mode
-- BotWebAI branding on the widget
-Best for trying BotWebAI with light usage.
+- TalkToWebsite branding on the widget
+Best for trying TalkToWebsite with light usage.
 
 STARTER — ₹999 / month
 - 1 AI assistant
 - 1,000 conversations / 30 days
 - Chat mode
-- No BotWebAI branding
+- No TalkToWebsite branding
 - Email support at vdevwish12312@gmail.com
 Best for solo founders launching their first AI assistant.
 
@@ -63,7 +65,7 @@ PRO — ₹1,999 / month (Most popular)
 - 2 AI assistants
 - 2,500 conversations / 30 days
 - Chat mode
-- No BotWebAI branding
+- No TalkToWebsite branding
 - Priority support at vdevwish12312@gmail.com
 Best for growing teams that need more assistants and higher usage.
 
@@ -71,17 +73,17 @@ You can upgrade, renew, or manage billing from Dashboard > Billing. Cancel anyti
   },
   {
     id: "how-it-works",
-    title: "How BotWebAI Works",
+    title: "How TalkToWebsite Works",
     body: `Simple flow from setup to live support:
 
 1. Create an assistant and describe how it should behave.
 2. Add your knowledge — upload PDFs/TXT files or import pages from your website.
-3. BotWebAI indexes your content so the assistant can find the right information when answering.
+3. TalkToWebsite indexes your content so the assistant can find the right information when answering.
 4. Embed the widget on your site, or share the standalone bot page link.
 5. Visitors ask questions; the assistant answers using your knowledge base.
 6. Review conversations in the dashboard and update knowledge anytime.
 
-Answers are grounded in your verified sources. If the assistant is unsure, it can stay within the scope you define in the system prompt or guide visitors to contact the BotWebAI team at vdevwish12312@gmail.com.`,
+Answers are grounded in your verified sources. If the assistant is unsure, it can stay within the scope you define in the system prompt or guide visitors to contact the TalkToWebsite team at vdevwish12312@gmail.com.`,
   },
   {
     id: "setup-time",
@@ -100,11 +102,11 @@ After launch, knowledge updates sync when you change sources — no retraining r
   },
   {
     id: "how-to-use",
-    title: "How to Use BotWebAI",
+    title: "How to Use TalkToWebsite",
     body: `STEP-BY-STEP GUIDE FOR BUSINESS OWNERS:
 
 Step 1 — Create an Account
-Go to the BotWebAI website and sign up with email/password or Google. Log in to access your dashboard.
+Go to the TalkToWebsite website and sign up with email/password or Google. Log in to access your dashboard.
 
 Step 2 — Create an Assistant
 Click "Create Assistant" in the dashboard. Complete the 3-step wizard:
@@ -116,7 +118,7 @@ Step 3 — Embed on Your Website
 From the dashboard, copy the embed script tag and paste it before the closing </body> tag on any page where you want the chat widget to appear.
 
 Step 4 — Share Standalone Link (Optional)
-Share https://botwebai.com/bot/your-bot-slug with customers who prefer a full-page chat experience.
+Share ${SITE_URL}/bot/your-bot-slug with customers who prefer a full-page chat experience.
 
 Step 5 — Monitor Conversations
 Go to Dashboard > Conversations to view visitor threads and review how the AI is performing.
@@ -133,10 +135,10 @@ FOR WEBSITE VISITORS:
   {
     id: "widget-embed",
     title: "Widget Embed Reference",
-    body: `Embed the BotWebAI chat widget on any website:
+    body: `Embed the TalkToWebsite chat widget on any website:
 
 Basic embed script:
-<script src="https://botwebai.com/api/widget/widget.js" data-bot="YOUR_BOT_SLUG" data-api-key="ttw_YOUR_API_KEY"></script>
+<script src="${SITE_URL}/api/widget/widget.js" data-bot="YOUR_BOT_SLUG" data-api-key="ttw_YOUR_API_KEY"></script>
 
 Script attributes:
 - data-bot (required): Your assistant slug
@@ -188,7 +190,7 @@ Keeping knowledge fresh:
   {
     id: "security",
     title: "Security and Privacy",
-    body: `BotWebAI security features:
+    body: `TalkToWebsite security features:
 
 - Data encrypted at rest and in transit
 - Per-assistant widget API keys for embed authentication
@@ -206,10 +208,10 @@ Chat data:
     id: "faq",
     title: "Frequently Asked Questions",
     body: `Q: Will the AI give wrong answers?
-A: BotWebAI answers from your verified knowledge base. When confidence is low, it can stay within the scope you define or guide visitors to your team at vdevwish12312@gmail.com. Answers are based on your content, not general internet knowledge.
+A: TalkToWebsite answers from your verified knowledge base. When confidence is low, it can stay within the scope you define or guide visitors to your team at vdevwish12312@gmail.com. Answers are based on your content, not general internet knowledge.
 
 Q: How can I connect with your team / contact support?
-A: Email the BotWebAI team at vdevwish12312@gmail.com. Starter includes email support and Pro includes priority support. We aim to respond within 24 to 48 hours on business days.
+A: Email the TalkToWebsite team at vdevwish12312@gmail.com. Starter includes email support and Pro includes priority support. We aim to respond within 24 to 48 hours on business days.
 
 Q: How long does setup take?
 A: Most teams go live in under 10 minutes. Import your content and add one script tag.
@@ -227,7 +229,7 @@ Q: What integrations do you support?
 A: Embed on any website with a script tag. Standalone bot page for direct links. Works with React, static sites, WordPress, and more.
 
 Q: Does it read from my existing docs?
-A: Yes. Paste your website URL and BotWebAI can import your docs, FAQs, and help articles. You can also upload PDF and TXT files directly.
+A: Yes. Paste your website URL and TalkToWebsite can import your docs, FAQs, and help articles. You can also upload PDF and TXT files directly.
 
 Q: What languages are supported?
 A: 100+ languages. Set a default language per assistant in the dashboard.
@@ -241,7 +243,7 @@ A: Yes. Cancel from Dashboard > Billing. You keep access until the end of your c
   {
     id: "contact-support",
     title: "Contact Support",
-    body: `Need help with BotWebAI? Contact support:
+    body: `Need help with TalkToWebsite? Contact support:
 
 Email: vdevwish12312@gmail.com
 
@@ -265,9 +267,9 @@ Response time: We aim to respond within 24 to 48 hours on business days. Starter
 
 export function documentationToMarkdown(): string {
   const lines: string[] = [
-    "# BotWebAI — Product Documentation",
+    "# TalkToWebsite — Product Documentation",
     "",
-    "This document covers how to use BotWebAI.",
+    "This document covers how to use TalkToWebsite.",
     "For support, email: vdevwish12312@gmail.com",
     "",
   ];

@@ -102,7 +102,7 @@ export function AuthMarketingPanel() {
                   <span className="text-xs font-semibold text-zinc-800">AI Agent</span>
                 </div>
                 <div className="rounded-2xl rounded-tl-md border border-zinc-100 bg-zinc-50 px-3.5 py-3 text-sm leading-relaxed text-zinc-700">
-                  BotWebAI is an AI support platform trained on your docs. Embed a chat
+                  TalkToWebsite is an AI support platform trained on your docs. Embed a chat
                   widget on your site or connect via API — answers stay grounded in your knowledge
                   base.
                 </div>

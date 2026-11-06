@@ -67,7 +67,7 @@ export default function AdminLayout({
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="animate-pulse flex items-center gap-2 text-muted-foreground">
-                    <Image src="/logo.png" alt="BotWebAI" width={32} height={32} />
+                    <Image src="/logo.png" alt="TalkToWebsite" width={32} height={32} />
                     <span>Checking admin access...</span>
                 </div>
             </div>
@@ -93,7 +93,7 @@ export default function AdminLayout({
                         <Link href="/admin" className="flex items-center gap-2 overflow-hidden shrink-0">
                             <Image
                                 src="/logo.png"
-                                alt="BotWebAI"
+                                alt="TalkToWebsite"
                                 width={32}
                                 height={32}
                                 className="h-8 w-8 shrink-0"

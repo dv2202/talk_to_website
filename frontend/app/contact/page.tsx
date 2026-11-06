@@ -9,7 +9,7 @@ import { SUPPORT_EMAIL } from "@/lib/docs/siteDocumentation";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with the BotWebAI team for product questions, support, or partnership inquiries.",
+    "Get in touch with the TalkToWebsite team for product questions, support, or partnership inquiries.",
 };
 
 export default function ContactPage() {

@@ -58,7 +58,7 @@ export async function getRazorpayPlanId(planId: PaidPlanId): Promise<string> {
         period: "monthly",
         interval: 1,
         item: {
-            name: `BotWebAI ${plan.name}`,
+            name: `TalkToWebsite ${plan.name}`,
             amount: plan.amountPaise,
             currency: "INR",
             description: `${plan.name} monthly subscription`,

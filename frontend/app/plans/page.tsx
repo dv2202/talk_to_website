@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Plans",
   description:
-    "BotWebAI pricing plans: Free, Starter, and Pro. Start on the free plan — no credit card required.",
+    "TalkToWebsite pricing plans: Free, Starter, and Pro. Start on the free plan — no credit card required.",
 };
 
 export default function PlansPage() {

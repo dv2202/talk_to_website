@@ -141,7 +141,7 @@ export default function ForgotPasswordPage() {
               <Bot className="h-4 w-4" />
             </div>
             <span className="text-lg font-semibold tracking-tight text-[#111] [font-family:var(--font-space)] dark:text-white">
-              BotWebAI
+              TalkToWebsite
             </span>
           </Link>
           <Link href="/login">
@@ -321,7 +321,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <footer className="flex items-center justify-between text-xs text-zinc-400">
-          <p>© {new Date().getFullYear()} BotWebAI</p>
+          <p>© {new Date().getFullYear()} TalkToWebsite</p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-zinc-600 dark:hover:text-zinc-300">
               Terms

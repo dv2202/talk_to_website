@@ -26,6 +26,7 @@ import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingNav } from "@/components/MarketingNav";
 import { Button } from "@/components/ui/button";
 import { formatPlanPrice, PLANS } from "@/lib/plans";
+import { SITE_URL } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 const stats = [
@@ -81,7 +82,7 @@ const steps = [
 ];
 
 const widgetEmbedSnippet = `<script
-  src="https://botwebai.com/api/widget/widget.js"
+  src="${SITE_URL}/api/widget/widget.js"
   data-bot="bot-name"
   data-api-key="ttw_0b5e3a4619d048b7495af65573"
 ></script>`;
@@ -117,7 +118,7 @@ const securityItems = [
 const testimonials = [
   {
     quote:
-      "We considered building RAG in-house. The estimate was 4 months and two senior engineers. BotWebAI gave us grounded AI support in a single afternoon.",
+      "We considered building RAG in-house. The estimate was 4 months and two senior engineers. TalkToWebsite gave us grounded AI support in a single afternoon.",
     name: "James Miller",
     role: "CTO, SaaS startup",
     result: "Months of eng → one afternoon",
@@ -141,7 +142,7 @@ const testimonials = [
 const faqs = [
   {
     q: "Will the AI give wrong answers?",
-    a: "BotWebAI uses RAG-grounded resolution from your verified knowledge base. When confidence is low, it escalates to your team with full context.",
+    a: "TalkToWebsite uses RAG-grounded resolution from your verified knowledge base. When confidence is low, it escalates to your team with full context.",
   },
   {
     q: "How long does setup take?",
@@ -236,7 +237,7 @@ export default function LandingPage() {
           <div className="min-w-0">
             {/* Brand is already in the fixed nav on mobile — keep hero-level brand from lg up */}
             <p className="mb-4 hidden font-display text-4xl tracking-tight text-primary lg:mb-6 lg:block animate-[fade-up_0.7s_ease_both]">
-              BotWebAI
+              TalkToWebsite
             </p>
             <div className="mb-4 flex items-center gap-3 font-mono text-[11px] leading-snug text-muted-foreground sm:text-sm lg:mb-6 animate-[fade-up_0.7s_ease_0.05s_both]">
               <span className="h-px w-6 shrink-0 bg-primary/40 sm:w-8" />
@@ -704,7 +705,7 @@ export default function LandingPage() {
             <span className="text-muted-foreground">something great?</span>
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Join teams shipping faster support with BotWebAI. Start free, scale infinitely.
+            Join teams shipping faster support with TalkToWebsite. Start free, scale infinitely.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Button

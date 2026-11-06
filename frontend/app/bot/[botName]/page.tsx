@@ -994,12 +994,12 @@ export default function ChatbotPage({ params }: { params: Promise<{ botName: str
               <p className="text-[10px] text-center text-slate-400 dark:text-zinc-500 mt-2">
                 Powered by{" "}
                 <a
-                  href="https://botwebai.com"
+                  href="/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline font-semibold"
                 >
-                  BotWebAI
+                  TalkToWebsite
                 </a>
               </p>
             )}

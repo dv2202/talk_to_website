@@ -9,12 +9,12 @@ export function MarketingFooter() {
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/logo.png"
-              alt="BotWebAI"
+              alt="TalkToWebsite"
               width={36}
               height={36}
               className="h-9 w-9 shrink-0"
             />
-            <span className="font-display text-2xl tracking-tight">BotWebAI</span>
+            <span className="font-display text-2xl tracking-tight">TalkToWebsite</span>
           </Link>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
             The platform for teams who ship support. Build, deploy, and scale AI grounded in your
@@ -72,7 +72,7 @@ export function MarketingFooter() {
       </div>
 
       <div className="mx-auto mt-12 flex max-w-[1400px] flex-wrap items-center justify-between gap-3 border-t border-foreground/10 px-6 pt-8 text-sm text-muted-foreground lg:px-12">
-        <p>© {new Date().getFullYear()} BotWebAI. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} TalkToWebsite. All rights reserved.</p>
         <p className="inline-flex items-center gap-2 font-mono text-xs">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
           All systems operational

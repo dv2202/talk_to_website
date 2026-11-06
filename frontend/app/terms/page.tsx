@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { LegalPageShell } from "@/components/LegalPageShell";
 import { SUPPORT_EMAIL } from "@/lib/docs/siteDocumentation";
+import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Terms governing use of BotWebAI — accounts, AI assistants, embeddings, billing, and acceptable use.",
+    "Terms governing use of TalkToWebsite — accounts, AI assistants, embeddings, billing, and acceptable use.",
 };
 
 const EFFECTIVE_DATE = "August 6, 2026";
@@ -14,15 +15,15 @@ const sections = [
   {
     title: "1. Agreement",
     paragraphs: [
-      `These Terms of Service ("Terms") govern access to and use of BotWebAI’s websites, dashboards, APIs, embeddable widgets, and related services (the "Service"). By creating an account, clicking to accept, or using the Service, you agree to these Terms.`,
+      `These Terms of Service ("Terms") govern access to and use of TalkToWebsite’s websites, dashboards, APIs, embeddable widgets, and related services (the "Service"). By creating an account, clicking to accept, or using the Service, you agree to these Terms.`,
       `If you use the Service on behalf of a company, you represent that you have authority to bind that company, and "you" includes that entity. If you do not agree, do not use the Service.`,
-      `Our Privacy Policy (https://botwebai.com/privacy) explains how we handle personal data and is incorporated by reference.`,
+      `Our Privacy Policy (${SITE_URL}/privacy) explains how we handle personal data and is incorporated by reference.`,
     ],
   },
   {
     title: "2. The Service",
     paragraphs: [
-      "BotWebAI lets you create AI assistants grounded in knowledge you supply (PDFs, text files, and selected website URLs), configure chat widgets, embed them on allowed domains or use a hosted bot page, and review conversations in a dashboard.",
+      "TalkToWebsite lets you create AI assistants grounded in knowledge you supply (PDFs, text files, and selected website URLs), configure chat widgets, embed them on allowed domains or use a hosted bot page, and review conversations in a dashboard.",
       "Features, plan limits, and branding options are described on our pricing pages and may change. We may update, suspend, or discontinue parts of the Service with reasonable notice when practical.",
     ],
   },
@@ -36,16 +37,16 @@ const sections = [
   {
     title: "4. Plans, fees, and billing",
     paragraphs: [
-      "BotWebAI offers a Free plan and paid monthly plans (currently Starter and Pro) billed in Indian Rupees (INR). Paid subscriptions are processed by Razorpay. Prices, conversation limits, assistant limits, branding removal, and support levels are as stated at purchase or on /plans, unless we agree otherwise in writing.",
+      "TalkToWebsite offers a Free plan and paid monthly plans (currently Starter and Pro) billed in Indian Rupees (INR). Paid subscriptions are processed by Razorpay. Prices, conversation limits, assistant limits, branding removal, and support levels are as stated at purchase or on /plans, unless we agree otherwise in writing.",
       "By starting a paid plan you authorize recurring charges for each billing period until you cancel. Taxes may apply. Fees already paid are generally non-refundable except where required by law or expressly stated by us.",
-      "We may suspend or downgrade access if payment fails, a subscription expires, or usage exceeds plan limits. Free plan features may include BotWebAI branding on the widget.",
+      "We may suspend or downgrade access if payment fails, a subscription expires, or usage exceeds plan limits. Free plan features may include TalkToWebsite branding on the widget.",
     ],
   },
   {
     title: "5. Customer content and licenses",
     paragraphs: [
       '"Customer Content" means knowledge sources, prompts, branding assets, fallback contact details, configuration, and other materials you upload or configure, as well as conversation data generated through your assistants.',
-      "You retain ownership of Customer Content. You grant BotWebAI a worldwide, non-exclusive license to host, process, transmit, embed, and display Customer Content solely to provide and improve the Service (including generating embeddings, retrieving context, and producing replies).",
+      "You retain ownership of Customer Content. You grant TalkToWebsite a worldwide, non-exclusive license to host, process, transmit, embed, and display Customer Content solely to provide and improve the Service (including generating embeddings, retrieving context, and producing replies).",
       "You represent that you have all rights needed to upload and use Customer Content, and that doing so does not violate law or third-party rights (including copyright, privacy, and confidentiality).",
     ],
   },
@@ -54,7 +55,7 @@ const sections = [
     paragraphs: [
       "Assistants generate responses using AI models and retrieval over your knowledge. Outputs may be inaccurate, incomplete, or inappropriate. You must review critical answers and remain responsible for how your business uses the widget with end users.",
       "You are responsible for: (a) the accuracy of knowledge you import; (b) configuring allowed domains and securing widget API keys; (c) complying with laws that apply to your collection and use of end-user messages and contact details; (d) providing any privacy notices or consents your visitors require; and (e) your fallback contact channels and escalation practices.",
-      "BotWebAI is not a law firm, medical provider, or regulated advisor. Do not rely on the Service as a substitute for professional advice where that would be inappropriate.",
+      "TalkToWebsite is not a law firm, medical provider, or regulated advisor. Do not rely on the Service as a substitute for professional advice where that would be inappropriate.",
     ],
   },
   {
@@ -66,7 +67,7 @@ const sections = [
       "Use the Service for unlawful, harmful, fraudulent, or abusive purposes.",
       "Upload malware, scrape the Service beyond permitted APIs, or attempt to bypass security, plan limits, or domain restrictions.",
       "Infringe intellectual property or privacy rights, or process special-category personal data unlawfully.",
-      "Misrepresent BotWebAI outputs as human when disclosure is required, or use the Service to spam or harass.",
+      "Misrepresent TalkToWebsite outputs as human when disclosure is required, or use the Service to spam or harass.",
       "Resell, sublicense, or provide the Service to third parties as a competing white-label platform except as expressly allowed by your plan or a separate agreement.",
       "Interfere with other customers’ use of the Service or reverse engineer the platform except where such restriction is prohibited by law.",
     ],
@@ -75,13 +76,13 @@ const sections = [
     title: "8. Embeds and third-party sites",
     paragraphs: [
       "If you embed our widget on your website, you must only enable domains you control or are authorized to use. You are responsible for the pages where the widget appears and for any conflict between these Terms and your site’s own terms with visitors.",
-      "Third-party services you connect (payment processor, Google login, AI providers, optional integrations such as GovernXOne) are governed by those providers’ terms. BotWebAI is not responsible for third-party outages or policies.",
+      "Third-party services you connect (payment processor, Google login, AI providers, optional integrations such as GovernXOne) are governed by those providers’ terms. TalkToWebsite is not responsible for third-party outages or policies.",
     ],
   },
   {
     title: "9. Intellectual property",
     paragraphs: [
-      "BotWebAI and its licensors own the Service, software, branding, documentation, and related intellectual property. These Terms do not transfer ownership to you. You may not copy, modify, or create derivative works of the Service except as needed to use it under these Terms.",
+      "TalkToWebsite and its licensors own the Service, software, branding, documentation, and related intellectual property. These Terms do not transfer ownership to you. You may not copy, modify, or create derivative works of the Service except as needed to use it under these Terms.",
       "Feedback you provide may be used by us without obligation to you.",
     ],
   },
@@ -101,21 +102,21 @@ const sections = [
   {
     title: "12. Disclaimers",
     paragraphs: [
-      'THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE." TO THE MAXIMUM EXTENT PERMITTED BY LAW, BOTWEBAI DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT AI OUTPUTS WILL BE ERROR-FREE, UNINTERRUPTED, OR MEET YOUR REQUIREMENTS.',
+      'THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE." TO THE MAXIMUM EXTENT PERMITTED BY LAW, TALKTOWEBSITE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT AI OUTPUTS WILL BE ERROR-FREE, UNINTERRUPTED, OR MEET YOUR REQUIREMENTS.',
     ],
   },
   {
     title: "13. Limitation of liability",
     paragraphs: [
-      "TO THE MAXIMUM EXTENT PERMITTED BY LAW, BOTWEBAI AND ITS AFFILIATES WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, REVENUE, DATA, OR GOODWILL, ARISING FROM YOUR USE OF THE SERVICE.",
-      "OUR TOTAL LIABILITY FOR ANY CLAIM RELATING TO THE SERVICE WILL NOT EXCEED THE AMOUNTS YOU PAID TO BOTWEBAI FOR THE SERVICE IN THE TWELVE (12) MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM (OR, IF YOU USE ONLY THE FREE PLAN, ONE THOUSAND INDIAN RUPEES).",
+      "TO THE MAXIMUM EXTENT PERMITTED BY LAW, TALKTOWEBSITE AND ITS AFFILIATES WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, REVENUE, DATA, OR GOODWILL, ARISING FROM YOUR USE OF THE SERVICE.",
+      "OUR TOTAL LIABILITY FOR ANY CLAIM RELATING TO THE SERVICE WILL NOT EXCEED THE AMOUNTS YOU PAID TO TALKTOWEBSITE FOR THE SERVICE IN THE TWELVE (12) MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM (OR, IF YOU USE ONLY THE FREE PLAN, ONE THOUSAND INDIAN RUPEES).",
       "Some jurisdictions do not allow certain limitations; in those cases our liability is limited to the fullest extent permitted by law.",
     ],
   },
   {
     title: "14. Indemnity",
     paragraphs: [
-      "You will defend and indemnify BotWebAI against claims, damages, and expenses arising from your Customer Content, your use of the Service, your assistants’ interactions with end users, or your violation of these Terms or applicable law.",
+      "You will defend and indemnify TalkToWebsite against claims, damages, and expenses arising from your Customer Content, your use of the Service, your assistants’ interactions with end users, or your violation of these Terms or applicable law.",
     ],
   },
   {
@@ -134,7 +135,7 @@ const sections = [
     title: "17. Contact",
     paragraphs: [
       `Questions about these Terms: ${SUPPORT_EMAIL}`,
-      "Website: https://botwebai.com",
+      `Website: ${SITE_URL}`,
     ],
   },
 ];
@@ -144,7 +145,7 @@ export default function TermsPage() {
     <LegalPageShell
       eyebrow="Legal"
       title="Terms of Service"
-      subtitle="The rules for using BotWebAI accounts, AI assistants, embeds, and paid plans."
+      subtitle="The rules for using TalkToWebsite accounts, AI assistants, embeds, and paid plans."
       effectiveDate={EFFECTIVE_DATE}
       sections={sections}
       otherLegalHref="/privacy"

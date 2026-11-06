@@ -72,7 +72,7 @@ export default function DashboardLayout({
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="animate-pulse flex items-center gap-2 text-muted-foreground">
-                   <Image src="/logo.png" alt="BotWebAI" width={32} height={32} />
+                   <Image src="/logo.png" alt="TalkToWebsite" width={32} height={32} />
                     <span>Setting up your account...</span>
                 </div>
             </div>
@@ -114,9 +114,9 @@ export default function DashboardLayout({
                 <div className="flex flex-col h-full">
                     <div className={`flex items-center justify-between p-4 h-16 ${isCollapsed ? "lg:justify-center" : ""}`}>
                         <Link href="/" className="flex items-center gap-2 overflow-hidden shrink-0">
-                            <Image src="/logo.png" alt="BotWebAI" width={32} height={32} className="h-8 w-8 shrink-0" />
+                            <Image src="/logo.png" alt="TalkToWebsite" width={32} height={32} className="h-8 w-8 shrink-0" />
                             <span className={`font-semibold text-lg tracking-tight transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden ${isCollapsed ? "lg:opacity-0 lg:max-w-0 lg:pointer-events-none" : "opacity-100 max-w-48"}`}>
-                                BotWebAI
+                                TalkToWebsite
                             </span>
                         </Link>
                         <Button

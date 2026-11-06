@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/MarketingNav";
 import { MarketingFooter } from "@/components/MarketingFooter";
+import { SITE_URL } from "@/lib/seo";
 import {
   ArrowRight,
   CircleCheck,
@@ -46,7 +47,7 @@ const setupSteps = [
 ];
 
 const widgetEmbedSnippet = `<script
-  src="https://botwebai.com/api/widget/widget.js"
+  src="${SITE_URL}/api/widget/widget.js"
   data-bot="bot-name"
   data-api-key="ttw_0b5e3a4619d048b7495af65573"
 ></script>`;
@@ -157,7 +158,7 @@ export default function HowItWorksPage() {
             <span className="text-muted-foreground">AI support</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            BotWebAI combines production-grade RAG, smart AI routing, and a one-line embed so your
+            TalkToWebsite combines production-grade RAG, smart AI routing, and a one-line embed so your
             visitors get accurate answers — grounded in your content, not hallucinated guesses.
           </p>
           <div className="mt-8 flex flex-wrap gap-4 text-xs font-medium text-muted-foreground">
