@@ -1,20 +1,11 @@
-import { auth } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import { NextResponse } from "next/server";
 
-export async function getSession() {
-    return await auth.api.getSession({
-        headers: await headers(),
-    });
-}
+export { getSession };
 
 export async function requireAuth() {
-    const session = await getSession();
-    if (!session) {
-        return null;
-    }
-    return session;
+    return await getSession();
 }
 
 export async function requireAdmin() {

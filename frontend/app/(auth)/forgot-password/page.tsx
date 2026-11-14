@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
   };
 
   const requestOtp = async (targetEmail: string) => {
-    const { error: requestError } = await authClient.emailOtp.requestPasswordReset({
+    const { error: requestError } = await authClient.requestPasswordReset({
       email: targetEmail.trim().toLowerCase(),
     });
     if (requestError) {
@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      const { error: resetError } = await authClient.emailOtp.resetPassword({
+      const { error: resetError } = await authClient.resetPassword({
         email: email.trim().toLowerCase(),
         otp,
         password,

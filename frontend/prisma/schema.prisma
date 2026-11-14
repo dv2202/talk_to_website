@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── BetterAuth Models ───
+// ─── Auth Models (custom session-cookie auth; see lib/auth) ───
 
 model User {
   id            String   @id @default(cuid())

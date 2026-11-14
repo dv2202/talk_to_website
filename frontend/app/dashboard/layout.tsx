@@ -48,13 +48,11 @@ export default function DashboardLayout({
             return;
         }
 
-        // After Google OAuth the shared session atom can still be null briefly.
         // Re-check once before sending the user back to login.
         let cancelled = false;
         void authClient.getSession().then(({ data }) => {
             if (cancelled) return;
             if (data) {
-                authClient.$store.notify("$sessionSignal");
                 if (isAdminEmail(data.user.email) && !isEditPage) {
                     router.replace("/admin");
                 }

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    const sessionCookie = getSessionCookie(request);
+    // Cheap presence check only; API routes and layouts validate the session against the DB.
+    const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
     // Protect dashboard and admin routes
     if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
