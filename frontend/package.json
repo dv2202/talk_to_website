@@ -36,7 +36,6 @@
     "@sentry/nextjs": "^10.69.0",
     "@vercel/blob": "^2.6.1",
     "@vercel/functions": "^3.9.1",
-    "better-auth": "^1.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "crawlee": "^3.17.0",

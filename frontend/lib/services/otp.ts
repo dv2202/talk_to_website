@@ -1,7 +1,8 @@
 import { createHash, randomInt, timingSafeEqual } from "crypto";
-import { hashPassword } from "better-auth/crypto";
 import { prisma } from "@/lib/prisma";
-import { sendOtpEmail, type OtpEmailType } from "@/lib/services/email";
+import { hashPassword, validatePassword } from "@/lib/auth/password";
+import { isValidEmail, normalizeEmail } from "@/lib/auth/email";
+import { sendOtpEmail } from "@/lib/services/email";
 
 export const OTP_LENGTH = 6;
 export const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -23,9 +24,7 @@ export function verifyOtpHash(otp: string, otpHash: string): boolean {
   return timingSafeEqual(incoming, stored);
 }
 
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
+export { normalizeEmail };
 
 export async function createPendingSignup(params: {
   name: string;
@@ -38,11 +37,12 @@ export async function createPendingSignup(params: {
   if (!name) {
     throw new OtpServiceError("Name is required", 400);
   }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!email || !isValidEmail(email)) {
     throw new OtpServiceError("Valid email is required", 400);
   }
-  if (!params.password || params.password.length < 8) {
-    throw new OtpServiceError("Password must be at least 8 characters", 400);
+  const passwordError = validatePassword(params.password);
+  if (passwordError) {
+    throw new OtpServiceError(passwordError, 400);
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
@@ -110,7 +110,7 @@ export async function resendSignupOtp(emailInput: string): Promise<{ email: stri
 export async function verifySignupOtpAndCreateAccount(params: {
   email: string;
   otp: string;
-}): Promise<{ email: string; name: string }> {
+}): Promise<{ id: string; email: string; name: string }> {
   const email = normalizeEmail(params.email);
   const otp = params.otp.trim();
 
@@ -169,26 +169,7 @@ export async function verifySignupOtpAndCreateAccount(params: {
     return created;
   });
 
-  return { email: user.email, name: user.name };
-}
-
-/** Map Better Auth emailOTP types onto our mailer. */
-export async function sendBetterAuthOtp(params: {
-  email: string;
-  otp: string;
-  type: "sign-in" | "email-verification" | "forget-password" | "change-email";
-}): Promise<void> {
-  const typeMap: Record<typeof params.type, OtpEmailType> = {
-    "sign-in": "sign-in",
-    "email-verification": "email-verification",
-    "forget-password": "forget-password",
-    "change-email": "email-verification",
-  };
-  await sendOtpEmail({
-    email: params.email,
-    otp: params.otp,
-    type: typeMap[params.type],
-  });
+  return { id: user.id, email: user.email, name: user.name };
 }
 
 export class OtpServiceError extends Error {

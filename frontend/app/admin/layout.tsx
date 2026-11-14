@@ -38,7 +38,6 @@ export default function AdminLayout({
                 const { data } = await authClient.getSession();
                 if (cancelled) return;
                 if (data) {
-                    authClient.$store.notify("$sessionSignal");
                     current = data;
                 }
             }

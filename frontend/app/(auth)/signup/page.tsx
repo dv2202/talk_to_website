@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Space_Grotesk } from "next/font/google";
-import { signIn } from "@/lib/auth-client";
 import { redirectAfterAuth } from "@/lib/auth-redirect";
 import { preloadGoogleSignIn, signInWithGooglePopup } from "@/lib/auth-social-popup";
 import { Button } from "@/components/ui/button";
@@ -45,7 +43,6 @@ function GoogleIcon() {
 type Step = "form" | "otp";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [step, setStep] = useState<Step>("form");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -146,13 +143,7 @@ export default function SignupPage() {
         return;
       }
 
-      const result = await signIn.email({ email, password });
-      if (result.error) {
-        setError(result.error.message || "Account created, but sign-in failed. Please log in.");
-        router.push("/login");
-        return;
-      }
-
+      // The verify endpoint sets the session cookie on success.
       redirectAfterAuth("/dashboard");
       return;
     } catch {

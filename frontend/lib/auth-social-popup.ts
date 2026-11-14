@@ -1,4 +1,4 @@
-import { authClient, signIn } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 
 type GooglePopupOptions = {
   onSuccess?: () => void;
@@ -77,7 +77,7 @@ export function preloadGoogleSignIn() {
 
 /**
  * Opens Google's official OAuth popup (GIS ux_mode: "popup"),
- * then signs in with Better Auth using the returned ID token.
+ * then exchanges the auth code server-side for a session cookie.
  */
 export async function signInWithGooglePopup(options: GooglePopupOptions = {}) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -118,42 +118,13 @@ export async function signInWithGooglePopup(options: GooglePopupOptions = {}) {
             return;
           }
 
-          const exchangeRes = await fetch("/api/auth/google-code", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: response.code }),
-          });
-
-          const exchangeData = (await exchangeRes.json()) as {
-            idToken?: string;
-            accessToken?: string;
-            error?: string;
-          };
-
-          if (!exchangeRes.ok || !exchangeData.idToken) {
-            options.onError?.(exchangeData.error || "Google login failed. Please try again.");
-            resolve();
-            return;
-          }
-
-          const result = await signIn.social({
-            provider: "google",
-            idToken: {
-              token: exchangeData.idToken,
-              accessToken: exchangeData.accessToken,
-            },
-          });
+          const result = await signIn.google({ code: response.code });
 
           if (result.error) {
             options.onError?.(result.error.message || "Google login failed. Please try again.");
             resolve();
             return;
           }
-
-          // Better Auth's default session atom listeners omit /sign-in/social,
-          // so force a session refetch before the post-login redirect.
-          authClient.$store.notify("$sessionSignal");
-          await authClient.getSession();
 
           options.onSuccess?.();
           resolve();
