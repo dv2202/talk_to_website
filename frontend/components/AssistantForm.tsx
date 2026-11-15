@@ -4,6 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import {
+    isInFlight,
+    useKnowledgeEvents,
+    type KnowledgeSourceEvent,
+} from "@/lib/use-knowledge-events";
 import { DEFAULT_BOT_LANGUAGE } from "@/lib/languages";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,6 +79,10 @@ export interface AssistantFormBot {
         type: string;
         name: string | null;
         content?: string | null;
+        status?: KnowledgeSource["status"];
+        progress?: number;
+        error?: string | null;
+        chunkCount?: number | null;
     }>;
 }
 
@@ -184,6 +193,10 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
                 type: s.type,
                 name: s.name || "Unnamed",
                 content: s.content ?? undefined,
+                status: s.status,
+                progress: s.progress,
+                error: s.error,
+                chunkCount: s.chunkCount,
             }))
         );
     }, [isEdit, initialBot]);
@@ -299,6 +312,50 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
         }
     };
 
+    // Live ingest progress over SSE while anything is queued/processing.
+    const hasInFlight = knowledgeSources.some((s) => isInFlight(s.status));
+    const applyKnowledgeEvents = useCallback(
+        (rows: KnowledgeSourceEvent[], replace: boolean) => {
+            setKnowledgeSources((prev) => {
+                const byId = new Map(rows.map((r) => [r.id, r]));
+                const merged = prev.map((s) => {
+                    const row = byId.get(s.id);
+                    return row
+                        ? {
+                              ...s,
+                              status: row.status,
+                              progress: row.progress,
+                              error: row.error,
+                              chunkCount: row.chunkCount,
+                          }
+                        : s;
+                });
+                // A snapshot is authoritative: drop rows deleted elsewhere.
+                return replace ? merged.filter((s) => byId.has(s.id)) : merged;
+            });
+            for (const row of rows) {
+                if (!replace && row.status === "FAILED") {
+                    toast.error(`${row.name || "Source"} failed: ${row.error || "unknown error"}`);
+                }
+            }
+        },
+        []
+    );
+    useKnowledgeEvents(createdBotId, hasInFlight, applyKnowledgeEvents);
+
+    const handleRetryKnowledge = async (id: string) => {
+        try {
+            await api.retryKnowledge(id);
+            setKnowledgeSources((prev) =>
+                prev.map((s) =>
+                    s.id === id ? { ...s, status: "PENDING", progress: 0, error: null } : s
+                )
+            );
+        } catch (error) {
+            console.error("Retry failed:", error);
+        }
+    };
+
     const handleUploadFile = async (file: File) => {
         const botId = await ensureBotCreated();
         if (!botId) return;
@@ -312,10 +369,13 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
                     id: result.id,
                     type: result.type,
                     name: result.name || file.name,
+                    status: result.status,
+                    progress: result.progress,
                 },
             ]);
         } catch (error) {
             console.error("Upload failed:", error);
+            toast.error(error instanceof Error ? error.message : "Upload failed");
         } finally {
             setUploading(false);
         }
@@ -565,6 +625,7 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
                             onSourcesChange={setKnowledgeSources}
                             onUploadFile={handleUploadFile}
                             onDeleteSource={handleDeleteKnowledge}
+                            onRetrySource={handleRetryKnowledge}
                             onDeleteAll={handleDeleteAllKnowledge}
                             onGoToIdentity={() => goToTab("identity")}
                         />

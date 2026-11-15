@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession, unauthorizedResponse } from '@/lib/auth-utils';
-import { importKnowledge } from '@/lib/rag';
+import { enqueueIngest } from '@/lib/ingest/queue';
+import { requeueStaleSources } from '@/lib/ingest/sources';
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,12 +23,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Bot not found' }, { status: 404 });
     }
 
-    const result = await importKnowledge(botId);
+    // Changed or failed sources go back on the queue; progress streams over SSE.
+    const queued = await requeueStaleSources(botId);
+    await enqueueIngest(queued);
 
-    return NextResponse.json({
-      success: true,
-      ...result,
-    });
+    return NextResponse.json({ success: true, queued: queued.length }, { status: 202 });
   } catch (error) {
     console.error('Knowledge import error:', error);
     return NextResponse.json(

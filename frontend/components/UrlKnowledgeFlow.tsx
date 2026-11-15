@@ -27,7 +27,7 @@ interface ScrapedResult {
 
 interface UrlKnowledgeFlowProps {
     botId: string | null;
-    onSaveComplete?: (sources: { id: string; type: string; name: string; content: string }[]) => void;
+    onSaveComplete?: (sources: { id: string; type: string; name: string; content: string; status?: "PENDING"; progress?: number }[]) => void;
 }
 
 export function UrlKnowledgeFlow({ botId, onSaveComplete }: UrlKnowledgeFlowProps) {
@@ -137,11 +137,13 @@ export function UrlKnowledgeFlow({ botId, onSaveComplete }: UrlKnowledgeFlowProp
                 content: r.content || "(No content extracted)",
             }));
             const result = await api.saveUrlKnowledgeBatch(botId, sources);
-            const saved = (result.saved || []).map((s: { id: string; type: string; name: string; content: string }) => ({
+            const saved = (result.saved || []).map((s: { id: string; type: string; name: string; content: string; status: "PENDING"; progress: number }) => ({
                 id: s.id,
                 type: s.type,
                 name: s.name,
                 content: s.content,
+                status: s.status,
+                progress: s.progress,
             }));
             onSaveComplete?.(saved);
             setStep("done");

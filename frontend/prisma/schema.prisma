@@ -178,12 +178,32 @@ model Bot {
   liveChatRooms    LiveChatRoom[]
 }
 
+enum KnowledgeSourceStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
 model KnowledgeSource {
   id          String              @id @default(cuid())
   type        KnowledgeSourceType
   name        String?
-  content     String
+  /// Cleaned text. Empty until the ingest worker has parsed `fileUrl`.
+  content     String              @default("")
   contentHash String?
+
+  /// Ingest pipeline state (see lib/ingest). Progress moves in 10% steps.
+  status      KnowledgeSourceStatus @default(PENDING)
+  progress    Int                   @default(0)
+  error       String?
+  attempts    Int                   @default(0)
+  /// Raw upload in Vercel Blob (private). Null for URL sources / inline uploads.
+  fileUrl     String?
+  fileSize    Int?
+  pageCount   Int?
+  chunkCount  Int?
+  processedAt DateTime?
 
   botId String
   bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
@@ -191,6 +211,10 @@ model KnowledgeSource {
   chunks KnowledgeChunk[]
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([botId, updatedAt])
+  @@index([status])
 }
 
 model KnowledgeChunk {

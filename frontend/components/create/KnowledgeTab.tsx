@@ -7,6 +7,7 @@ import {
     FileText,
     Globe,
     Loader2,
+    RotateCw,
     Trash2,
     Upload,
 } from "lucide-react";
@@ -29,6 +30,61 @@ export interface KnowledgeSource {
     type: string;
     name: string;
     content?: string;
+    status?: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+    progress?: number;
+    error?: string | null;
+    chunkCount?: number | null;
+}
+
+function SourceStatus({
+    source,
+    onRetry,
+}: {
+    source: KnowledgeSource;
+    onRetry?: (id: string) => void;
+}) {
+    const status = source.status ?? "READY";
+    if (status === "READY") {
+        return source.chunkCount != null ? (
+            <span className="text-xs text-muted-foreground">{source.chunkCount} chunks</span>
+        ) : null;
+    }
+    if (status === "FAILED") {
+        return (
+            <span className="flex items-center gap-1.5 text-xs text-destructive" title={source.error ?? undefined}>
+                <AlertCircle className="h-3.5 w-3.5" />
+                Failed
+                {onRetry && (
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-1 underline-offset-2 hover:underline"
+                        onClick={() => onRetry(source.id)}
+                    >
+                        <RotateCw className="h-3 w-3" />
+                        Retry
+                    </button>
+                )}
+            </span>
+        );
+    }
+    const progress = Math.max(0, Math.min(100, source.progress ?? 0));
+    return (
+        <span className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
+            <span
+                className="h-1.5 w-20 overflow-hidden rounded-full bg-muted"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={progress}
+            >
+                <span
+                    className="block h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
+                    style={{ width: `${Math.max(progress, 4)}%` }}
+                />
+            </span>
+            {status === "PENDING" ? "Queued" : `${progress}%`}
+        </span>
+    );
 }
 
 interface KnowledgeTabProps {
@@ -40,6 +96,7 @@ interface KnowledgeTabProps {
     onSourcesChange: (sources: KnowledgeSource[]) => void;
     onUploadFile: (file: File) => void;
     onDeleteSource: (id: string) => void;
+    onRetrySource?: (id: string) => void;
     onDeleteAll: () => Promise<void>;
     onGoToIdentity: () => void;
 }
@@ -53,6 +110,7 @@ export function KnowledgeTab({
     onSourcesChange,
     onUploadFile,
     onDeleteSource,
+    onRetrySource,
     onDeleteAll,
     onGoToIdentity,
 }: KnowledgeTabProps) {
@@ -179,6 +237,7 @@ export function KnowledgeTab({
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-1">
+                                    <SourceStatus source={source} onRetry={onRetrySource} />
                                     {source.content && (
                                         <Button
                                             variant="ghost"

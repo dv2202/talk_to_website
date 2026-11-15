@@ -1,4 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "fluid": true
+  "fluid": true,
+  "functions": {
+    "app/api/queues/knowledge-ingest/route.ts": {
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "knowledge-ingest" }]
+    }
+  }
 }

@@ -74,24 +74,56 @@ export const api = {
     // Knowledge Sources
     getKnowledge: (botId: string) =>
         fetchApi(`/api/knowledge/${botId}`),
+    /**
+     * Uploads a PDF/TXT and queues it for background ingestion (202).
+     * Uses direct browser → Vercel Blob upload when available, so large
+     * files never hit the function body limit; falls back to multipart.
+     */
     uploadKnowledge: async (botId: string, file: File) => {
+        const readError = async (response: Response) => {
+            const error = await response.json().catch(() => ({ error: "Upload failed" }));
+            return new Error(error.error || `HTTP ${response.status}`);
+        };
+
+        const capability = await fetch(`${API_URL}/api/knowledge/upload/token`, {
+            credentials: "include",
+        })
+            .then((r) => (r.ok ? r.json() : { direct: false }))
+            .catch(() => ({ direct: false }));
+
+        if (capability.direct) {
+            const { upload } = await import("@vercel/blob/client");
+            const ext = file.name.toLowerCase().endsWith(".pdf") ? "pdf" : "txt";
+            const blob = await upload(`knowledge/${botId}/${crypto.randomUUID()}.${ext}`, file, {
+                access: "private",
+                handleUploadUrl: "/api/knowledge/upload/token",
+                clientPayload: JSON.stringify({ botId }),
+                contentType: ext === "pdf" ? "application/pdf" : "text/plain",
+                multipart: file.size > 5 * 1024 * 1024,
+            });
+            const response = await fetch(`${API_URL}/api/knowledge/upload`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ botId, blobUrl: blob.url, name: file.name }),
+            });
+            if (!response.ok) throw await readError(response);
+            return response.json();
+        }
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("botId", botId);
-
         const response = await fetch(`${API_URL}/api/knowledge/upload`, {
             method: "POST",
             credentials: "include",
             body: formData,
         });
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: "Upload failed" }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
+        if (!response.ok) throw await readError(response);
         return response.json();
     },
+    retryKnowledge: (id: string) =>
+        fetchApi(`/api/knowledge/${id}/retry`, { method: "POST" }),
     uploadAvatar: async (file: File) => {
         const { compressAvatarImage } = await import("@/lib/compress-avatar");
         const compressed = await compressAvatarImage(file);

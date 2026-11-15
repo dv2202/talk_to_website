@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getSession, unauthorizedResponse } from "@/lib/auth-utils";
-import { syncSingleSource } from "@/lib/rag";
+import { enqueueIngest } from "@/lib/ingest/queue";
+import { sourceStatusSelect } from "@/lib/ingest/sources";
 
 export async function POST(req: NextRequest) {
     try {
@@ -50,31 +51,16 @@ export async function POST(req: NextRequest) {
                 content: s.content,
                 botId,
             })),
+            select: { ...sourceStatusSelect, content: true },
         });
 
-        // Await sync so serverless runtimes do not kill embedding mid-write.
-        // Fire-and-forget left sources saved but chunks truncated/missing.
-        const syncResults: Array<{ sourceId: string; success: boolean; chunksCreated?: number; error?: string }> = [];
-        for (const source of saved) {
-            try {
-                const result = await syncSingleSource(botId, source.id);
-                syncResults.push({
-                    sourceId: source.id,
-                    success: result.success,
-                    chunksCreated: result.chunksCreated,
-                });
-            } catch (syncError) {
-                const message = syncError instanceof Error ? syncError.message : "Unknown sync error";
-                console.error(`RAG sync failed for source ${source.id}:`, syncError);
-                syncResults.push({ sourceId: source.id, success: false, error: message });
-            }
-        }
+        // Embedding runs in the background queue; progress streams over SSE.
+        await enqueueIngest(saved.map((source: { id: string }) => source.id));
 
         return NextResponse.json({
             saved,
-            syncResults,
             deduplicatedCount: sources.length - uniqueSources.length,
-        }, { status: 201 });
+        }, { status: 202 });
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error";
         console.error("Save batch error:", message);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession, unauthorizedResponse } from "@/lib/auth-utils";
 import { clearKnowledge } from "@/lib/rag";
+import { deleteSourceFiles } from "@/lib/ingest/sources";
 
 export async function POST(req: NextRequest) {
     try {
@@ -22,7 +23,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Bot not found" }, { status: 404 });
         }
 
+        const files = await prisma.knowledgeSource.findMany({
+            where: { botId, fileUrl: { not: null } },
+            select: { fileUrl: true },
+        });
         const result = await clearKnowledge(botId);
+        await deleteSourceFiles(files.map((f: { fileUrl: string | null }) => f.fileUrl));
 
         return NextResponse.json({
             message: "All knowledge sources deleted successfully",
