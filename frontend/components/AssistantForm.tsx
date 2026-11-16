@@ -91,6 +91,8 @@ interface AssistantFormProps {
     initialBot?: AssistantFormBot;
 }
 
+const BOT_NAME_DEBOUNCE_MS = 600;
+
 export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
     const isEdit = mode === "edit";
     const router = useRouter();
@@ -105,8 +107,9 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
     const [name, setName] = useState("");
     const [botName, setBotName] = useState("");
     const [botNameStatus, setBotNameStatus] = useState<
-        "idle" | "checking" | "available" | "taken"
+        "idle" | "checking" | "available" | "taken" | "error"
     >("idle");
+    const [botNameRetry, setBotNameRetry] = useState(0);
     const [description, setDescription] = useState("");
     const [systemPrompt, setSystemPrompt] = useState(
         "Answer users politely and help them understand our services."
@@ -201,36 +204,44 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
         );
     }, [isEdit, initialBot]);
 
-    // Check bot name availability with debounce
-    const checkBotName = useCallback(
-        async (value: string) => {
-            const originalSlug = isEdit ? initialBot?.botName : undefined;
-            if (value === originalSlug || value.length < 3) {
-                setBotNameStatus("idle");
-                return;
-            }
-            setBotNameStatus("checking");
-            try {
-                const result = await api.checkBotName(
-                    value,
-                    isEdit ? initialBot?.id : undefined
-                );
-                setBotNameStatus(result.available ? "available" : "taken");
-            } catch {
-                setBotNameStatus("idle");
-            }
-        },
-        [isEdit, initialBot]
-    );
-
+    // Check bot name availability once the user stops typing (debounced).
+    // Stale requests are aborted so an older response can't overwrite a newer one.
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (botName.length >= 3) {
-                checkBotName(botName);
+        const value = botName.trim();
+        const originalSlug = isEdit ? initialBot?.botName : undefined;
+        if (value.length < 3 || value === originalSlug) {
+            setBotNameStatus("idle");
+            return;
+        }
+
+        // Disable Next immediately while typing; the request itself waits for the pause.
+        setBotNameStatus("checking");
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            for (let attempt = 0; attempt < 2; attempt++) {
+                try {
+                    const result = await api.checkBotName(
+                        value,
+                        isEdit ? initialBot?.id : undefined,
+                        controller.signal
+                    );
+                    if (!controller.signal.aborted) {
+                        setBotNameStatus(result.available ? "available" : "taken");
+                    }
+                    return;
+                } catch {
+                    if (controller.signal.aborted) return;
+                    if (attempt === 0) await new Promise((r) => setTimeout(r, 800));
+                }
             }
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [botName, checkBotName]);
+            if (!controller.signal.aborted) setBotNameStatus("error");
+        }, BOT_NAME_DEBOUNCE_MS);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [botName, botNameRetry, isEdit, initialBot]);
 
     const slugValid = botName.trim().length >= 3;
     const slugTaken = botNameStatus === "taken";
@@ -545,6 +556,7 @@ export function AssistantForm({ mode, initialBot }: AssistantFormProps) {
                             botName={botName}
                             onBotNameChange={setBotName}
                             botNameStatus={botNameStatus}
+                            onRetryBotName={() => setBotNameRetry((n) => n + 1)}
                             botNameHint={
                                 isEdit
                                     ? `Public page: /bot/${botName || initialBot?.botName}`

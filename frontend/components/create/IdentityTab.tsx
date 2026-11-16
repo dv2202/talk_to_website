@@ -18,7 +18,7 @@ import { FallbackContactPicker } from "@/components/FallbackContactPicker";
 import { FieldInfo } from "@/components/FieldInfo";
 import type { FallbackContactEntry } from "@/lib/fallback-contact";
 
-type BotNameStatus = "idle" | "checking" | "available" | "taken";
+type BotNameStatus = "idle" | "checking" | "available" | "taken" | "error";
 
 interface IdentityTabProps {
     name: string;
@@ -26,6 +26,7 @@ interface IdentityTabProps {
     botName: string;
     onBotNameChange: (value: string) => void;
     botNameStatus: BotNameStatus;
+    onRetryBotName?: () => void;
     botNameHint?: string;
     description: string;
     onDescriptionChange: (value: string) => void;
@@ -44,6 +45,7 @@ export function IdentityTab({
     botName,
     onBotNameChange,
     botNameStatus,
+    onRetryBotName,
     botNameHint,
     description,
     onDescriptionChange,
@@ -132,30 +134,33 @@ export function IdentityTab({
                         )}
                     </div>
                 </div>
-                {botNameStatus === "taken" && (
-                    <p className="text-xs text-destructive">
-                        Bot name already taken. Please choose another.
-                    </p>
-                )}
-                {botName && botName.length < 3 && (
-                    <p className="text-xs text-destructive">
-                        Bot name must be at least 3 characters.
-                    </p>
-                )}
-                {botNameHint && botNameStatus !== "taken" && (
-                    <p className="text-xs text-muted-foreground">{botNameHint}</p>
-                )}
-                {botNameStatus === "checking" && (
-                    <p className="flex items-center text-xs text-muted-foreground">
-                        <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Checking
-                        availability...
-                    </p>
-                )}
-                {botNameStatus === "available" && (
-                    <p className="flex items-center text-xs text-green-600">
-                        <Check className="mr-1.5 h-3 w-3" /> Bot name is available!
-                    </p>
-                )}
+                {/* One fixed-height status line so the form doesn't jump while typing */}
+                <div className="min-h-4 text-xs leading-4" aria-live="polite">
+                    {botName && botName.length < 3 ? (
+                        <p className="text-destructive">Bot name must be at least 3 characters.</p>
+                    ) : botNameStatus === "taken" ? (
+                        <p className="text-destructive">Bot name already taken. Please choose another.</p>
+                    ) : botNameStatus === "available" ? (
+                        <p className="flex items-center text-green-600">
+                            <Check className="mr-1.5 h-3 w-3" /> Bot name is available!
+                        </p>
+                    ) : botNameStatus === "error" ? (
+                        <p className="text-destructive">
+                            Couldn&apos;t check availability.{" "}
+                            <button
+                                type="button"
+                                onClick={onRetryBotName}
+                                className="font-medium underline underline-offset-2"
+                            >
+                                Retry
+                            </button>
+                        </p>
+                    ) : botNameStatus === "checking" ? (
+                        <p className="text-muted-foreground">Checking availability...</p>
+                    ) : botNameHint ? (
+                        <p className="text-muted-foreground">{botNameHint}</p>
+                    ) : null}
+                </div>
             </div>
 
             <div className="space-y-2">

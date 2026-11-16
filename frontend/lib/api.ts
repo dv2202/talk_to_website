@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_APP_URL || "";
+// In the browser always call the same origin the page was served from, so a custom
+// domain (or preview URL) never sends API calls to a different host.
+const API_URL = typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_APP_URL || "";
 
 type FetchOptions = RequestInit & {
     params?: Record<string, string>;
@@ -48,9 +50,10 @@ export const api = {
         fetchApi(`/api/bots/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     deleteBot: (id: string) =>
         fetchApi(`/api/bots/${id}`, { method: "DELETE" }),
-    checkBotName: (name: string, excludeBotId?: string) =>
-        fetchApi(`/api/bots/check-name/${name}`, {
+    checkBotName: (name: string, excludeBotId?: string, signal?: AbortSignal) =>
+        fetchApi(`/api/bots/check-name/${encodeURIComponent(name)}`, {
             params: excludeBotId ? { excludeBotId } : undefined,
+            signal,
         }),
     getBotApiKeys: () => fetchApi("/api/bots/api-keys"),
     regenerateBotApiKey: (id: string) =>
