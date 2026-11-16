@@ -21,7 +21,7 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
-import { HeroChatDemo } from "@/components/HeroChatDemo";
+import { HeroDemo } from "@/components/landing/HeroDemo";
 import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingNav } from "@/components/MarketingNav";
 import { Button } from "@/components/ui/button";
@@ -277,27 +277,15 @@ export default function LandingPage() {
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="h-12 w-full rounded-full border-primary/25 bg-transparent px-7 text-sm hover:bg-brand-surface hover:text-foreground sm:w-auto"
-                id="hero-view-demo"
-              >
-                <Link href="/how-it-works">Watch demo</Link>
-              </Button>
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[360px] animate-[fade-up_0.7s_ease_0.2s_both] sm:max-w-[400px] lg:mx-0 lg:max-w-none">
-            <div className="pointer-events-none absolute -inset-6 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--brand-green)_26%,transparent),transparent_68%)] blur-2xl sm:-inset-10" />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -top-3 -right-2 hidden h-24 w-24 rounded-full bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--brand-green-light)_35%,transparent),transparent_70%)] blur-xl sm:block lg:-right-4"
-            />
-            <div className="relative">
-              <HeroChatDemo />
-            </div>
+          <div
+            className="relative w-full min-w-0 animate-[fade-up_0.7s_ease_0.2s_both]"
+            role="img"
+            aria-label="A visitor asks a website's chat widget whether opened items can be returned; TalkToWebsite answers from the site's returns policy and highlights the passage it used."
+          >
+            <HeroDemo />
           </div>
         </div>
 

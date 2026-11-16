@@ -58,19 +58,6 @@ export const api = {
             method: "POST",
         }),
 
-    // Profile
-    getGovernXOneCredentials: () => fetchApi("/api/profile/governxone"),
-    saveGovernXOneCredentials: (data: {
-        apiKey?: string;
-        projectId?: string;
-        endpoint?: string;
-        clear?: boolean;
-    }) =>
-        fetchApi("/api/profile/governxone", {
-            method: "PUT",
-            body: JSON.stringify(data),
-        }),
-
     // Knowledge Sources
     getKnowledge: (botId: string) =>
         fetchApi(`/api/knowledge/${botId}`),

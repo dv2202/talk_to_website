@@ -16,45 +16,20 @@ type BotApiKeyRecord = {
     updatedAt: string;
 };
 
-type GovernXOneProfile = {
-    projectId: string | null;
-    endpoint: string | null;
-    hasApiKey: boolean;
-    apiKey: string | null;
-};
-
 export default function ProfilePage() {
     const [records, setRecords] = useState<BotApiKeyRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
     const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
-    const [governxoneProfile, setGovernxoneProfile] = useState<GovernXOneProfile | null>(null);
-    const [governxoneApiKey, setGovernxoneApiKey] = useState("");
-    const [governxoneProjectId, setGovernxoneProjectId] = useState("");
-    const [governxoneEndpoint, setGovernxoneEndpoint] = useState("");
-    const [governxoneLoading, setGovernxoneLoading] = useState(true);
-    const [governxoneSaving, setGovernxoneSaving] = useState(false);
-    const [governxoneClearing, setGovernxoneClearing] = useState(false);
-    const [governxoneMessage, setGovernxoneMessage] = useState<string | null>(null);
-    const [governxoneError, setGovernxoneError] = useState<string | null>(null);
-
     useEffect(() => {
         const load = async () => {
             try {
-                const [apiKeys, governxone] = await Promise.all([
-                    api.getBotApiKeys(),
-                    api.getGovernXOneCredentials(),
-                ]);
-                setRecords(apiKeys);
-                setGovernxoneProfile(governxone);
-                setGovernxoneProjectId(governxone.projectId || "");
-                setGovernxoneEndpoint(governxone.endpoint || "");
+                setRecords(await api.getBotApiKeys());
             } catch (error) {
                 console.error("Failed to load profile data:", error);
             } finally {
                 setLoading(false);
-                setGovernxoneLoading(false);
             }
         };
 
@@ -70,46 +45,6 @@ export default function ProfilePage() {
         await navigator.clipboard.writeText(value);
         setCopiedValue(key);
         setTimeout(() => setCopiedValue(null), 2000);
-    };
-
-    const saveGovernxone = async () => {
-        setGovernxoneSaving(true);
-        setGovernxoneMessage(null);
-        setGovernxoneError(null);
-        try {
-            const updated = await api.saveGovernXOneCredentials({
-                apiKey: governxoneApiKey || undefined,
-                projectId: governxoneProjectId,
-                endpoint: governxoneEndpoint,
-            });
-            setGovernxoneProfile(updated);
-            setGovernxoneProjectId(updated.projectId || "");
-            setGovernxoneEndpoint(updated.endpoint || "");
-            setGovernxoneApiKey("");
-            setGovernxoneMessage("GovernXOne credentials saved.");
-        } catch (error: any) {
-            setGovernxoneError(error?.message || "Failed to save GovernXOne credentials.");
-        } finally {
-            setGovernxoneSaving(false);
-        }
-    };
-
-    const clearGovernxone = async () => {
-        setGovernxoneClearing(true);
-        setGovernxoneMessage(null);
-        setGovernxoneError(null);
-        try {
-            const updated = await api.saveGovernXOneCredentials({ clear: true });
-            setGovernxoneProfile(updated);
-            setGovernxoneProjectId("");
-            setGovernxoneEndpoint("");
-            setGovernxoneApiKey("");
-            setGovernxoneMessage("GovernXOne credentials removed.");
-        } catch (error: any) {
-            setGovernxoneError(error?.message || "Failed to clear GovernXOne credentials.");
-        } finally {
-            setGovernxoneClearing(false);
-        }
     };
 
     const regenerate = async (record: BotApiKeyRecord) => {
@@ -153,114 +88,6 @@ export default function ProfilePage() {
                     Manage widget API keys for your assistants.
                 </p>
             </div>
-
-            {/* Card for GovernXOne */}
-            {/* <Card className="rounded-3xl border-black/10 bg-white/85 dark:border-white/15 dark:bg-white/5">
-                <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <CardTitle className="text-lg">GovernXOne Monitoring</CardTitle>
-                            <CardDescription className="text-black/55 dark:text-white/55">
-                                Save your GovernXOne API key, project ID, and endpoint to monitor AI usage for all assistants on this account. If not set, the server falls back to shared env credentials.
-                            </CardDescription>
-                        </div>
-                        <Badge variant="secondary" className="rounded-full border border-black/10 bg-black/5 text-black dark:border-white/15 dark:bg-white/10 dark:text-white">
-                            GovernXOne
-                        </Badge>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    {governxoneLoading ? (
-                        <div className="flex items-center gap-2 text-sm text-black/55 dark:text-white/55">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Loading credentials...
-                        </div>
-                    ) : (
-                        <>
-                            {governxoneProfile?.hasApiKey && governxoneProfile.apiKey && (
-                                <div className="space-y-1">
-                                    <p className="text-xs font-medium text-black/55 dark:text-white/55">Saved API Key</p>
-                                    <p className="text-sm font-mono text-black/70 dark:text-white/75">{governxoneProfile.apiKey}</p>
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-black/55 dark:text-white/55">API Key</p>
-                                <Input
-                                    type="password"
-                                    value={governxoneApiKey}
-                                    onChange={(e) => setGovernxoneApiKey(e.target.value)}
-                                    placeholder={governxoneProfile?.hasApiKey ? "Leave blank to keep current key" : "Enter GovernXOne API key"}
-                                    className="bg-white/70 dark:bg-white/5 border-black/15 dark:border-white/20"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-black/55 dark:text-white/55">Project ID</p>
-                                <Input
-                                    value={governxoneProjectId}
-                                    onChange={(e) => setGovernxoneProjectId(e.target.value)}
-                                    placeholder="Enter GovernXOne project ID"
-                                    className="bg-white/70 dark:bg-white/5 border-black/15 dark:border-white/20"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-black/55 dark:text-white/55">Endpoint</p>
-                                <Input
-                                    value={governxoneEndpoint}
-                                    onChange={(e) => setGovernxoneEndpoint(e.target.value)}
-                                    placeholder="https://dev.governxone.com"
-                                    className="bg-white/70 dark:bg-white/5 border-black/15 dark:border-white/20"
-                                />
-                            </div>
-
-                            {governxoneMessage && (
-                                <p className="text-sm text-emerald-700 dark:text-emerald-300">{governxoneMessage}</p>
-                            )}
-                            {governxoneError && (
-                                <p className="text-sm text-red-600 dark:text-red-300">{governxoneError}</p>
-                            )}
-
-                            <div className="flex flex-wrap gap-2 pt-1">
-                                <Button
-                                    type="button"
-                                    className="rounded-full"
-                                    onClick={saveGovernxone}
-                                    disabled={governxoneSaving || governxoneClearing}
-                                >
-                                    {governxoneSaving ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                            Saving...
-                                        </>
-                                    ) : (
-                                        "Save Credentials"
-                                    )}
-                                </Button>
-                                {(governxoneProfile?.hasApiKey || governxoneProfile?.projectId || governxoneProfile?.endpoint) && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="rounded-full border-black/15 bg-white/80 dark:border-white/20 dark:bg-white/5"
-                                        onClick={clearGovernxone}
-                                        disabled={governxoneSaving || governxoneClearing}
-                                    >
-                                        {governxoneClearing ? (
-                                            <>
-                                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                                Clearing...
-                                            </>
-                                        ) : (
-                                            "Clear Credentials"
-                                        )}
-                                    </Button>
-                                )}
-                            </div>
-                        </>
-                    )}
-                </CardContent>
-            </Card> */}
 
             {records.length === 0 ? (
                 <Card className="border-dashed border-black/20 bg-white/70 dark:border-white/20 dark:bg-white/5">

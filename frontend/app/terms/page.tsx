@@ -76,7 +76,7 @@ const sections = [
     title: "8. Embeds and third-party sites",
     paragraphs: [
       "If you embed our widget on your website, you must only enable domains you control or are authorized to use. You are responsible for the pages where the widget appears and for any conflict between these Terms and your site’s own terms with visitors.",
-      "Third-party services you connect (payment processor, Google login, AI providers, optional integrations such as GovernXOne) are governed by those providers’ terms. TalkToWebsite is not responsible for third-party outages or policies.",
+      "Third-party services you connect (payment processor, Google login, AI providers) are governed by those providers’ terms. TalkToWebsite is not responsible for third-party outages or policies.",
     ],
   },
   {

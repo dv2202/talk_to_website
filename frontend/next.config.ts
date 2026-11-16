@@ -21,7 +21,6 @@ const nextConfig: NextConfig = {
     "@crawlee/playwright",
     "playwright",
     "playwright-core",
-    "@governxone/ai-monitor",
     "@google/generative-ai",
     "@langchain/google-vertexai",
     "ws",

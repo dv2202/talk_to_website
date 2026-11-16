@@ -43,7 +43,6 @@ const sections = [
       "Conversation and visitor data. When someone uses an assistant, we store messages and AI responses. Depending on widget settings and visitor choices, we may also store visitor profile details (name, email), technical metadata (IP address, approximate country, user agent, device type, platform, timezone, language), and session identifiers. Account holders can review this information in their dashboard inbox.",
       "Billing data. For paid plans (Starter and Pro), we process subscription and payment records through Razorpay, including plan selection, amounts (INR), payment status, and Razorpay order/subscription/payment identifiers. Card and bank details are handled by Razorpay; we do not store full payment card numbers.",
       "Contact and support. If you use our contact form or email us, we collect your name, email, subject, and message so we can respond.",
-      "Optional integrations. Account holders may voluntarily save third-party credentials (for example GovernXOne API settings) in their profile. Those credentials are used only to provide the requested integration.",
       "Cookies and similar technologies. We use session cookies and similar technologies required to keep you logged in, secure the Service, and remember essential preferences (such as theme). We do not operate a separate advertising pixel network on the marketing site as part of the core product described here.",
     ],
   },

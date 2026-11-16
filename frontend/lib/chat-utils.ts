@@ -166,7 +166,6 @@ export async function findBot(params: {
         bot = await withAccelerateRetry(() =>
             prisma.bot.findUnique({
                 where: { id: params.botId },
-                cacheStrategy: { ttl: 30, swr: 60 },
             })
         );
     }
@@ -175,7 +174,6 @@ export async function findBot(params: {
         bot = await withAccelerateRetry(() =>
             prisma.bot.findUnique({
                 where: { botName: normalizeBotName(params.botName!) },
-                cacheStrategy: { ttl: 30, swr: 60 },
             })
         );
     }

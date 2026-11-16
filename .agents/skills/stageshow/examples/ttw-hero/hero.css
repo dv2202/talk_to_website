@@ -1,0 +1,318 @@
+/* TalkToWebsite hero. Everything is scoped under .th. */
+.th {
+  & .ss-stage {
+    --gutter: 32px;
+    --brand: #307766;
+    --brand-dark: #245a4d;
+    --brand-soft: #e4f1ec;
+    --ss-accent: #307766;
+    --ss-accent-soft: #d5ebe3;
+    --ss-font: "Instrument Sans", system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #e3eee9;
+  }
+
+  /* Corner bleed: the customer's site, inset top and left, off right and bottom */
+  .th-site {
+    position: absolute;
+    top: var(--gutter);
+    left: var(--gutter);
+    width: 700px;
+    height: 460px;
+    box-shadow: var(--ss-shadow-hero);
+  }
+
+  .th-page {
+    height: 100%;
+    padding: 22px 28px;
+    background: var(--ss-surface);
+  }
+
+  /* The readable column sits left of the widget */
+  .th-page > * {
+    max-width: 212px;
+  }
+
+  .th-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: none;
+    margin-bottom: 30px;
+  }
+
+  .th-nav > :first-child {
+    margin-right: 10px;
+  }
+
+  .th-title {
+    margin-bottom: 14px;
+    color: var(--ss-text-strong);
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .th-lines {
+    display: grid;
+    gap: 9px;
+  }
+
+  .th-intro {
+    margin-bottom: 22px;
+  }
+
+  /* The passage the answer came from: a soft band eases in behind it */
+  /* A callout block: a quiet rule at rest, the band and the brand rule once
+     the answer cites it */
+  .th-section {
+    position: relative;
+    margin-bottom: 22px;
+    padding: 12px 14px;
+    border-radius: 0 10px 10px 0;
+    box-shadow: inset 2px 0 0 var(--ss-line);
+  }
+
+  .th-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: var(--brand-soft);
+    box-shadow: inset 2px 0 0 var(--brand);
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .th-section[data-on]::before {
+    opacity: 1;
+  }
+
+  .th-section > * {
+    position: relative;
+  }
+
+  .th-heading {
+    margin-bottom: 10px;
+    color: var(--ss-text-strong);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* ---- The widget, as TalkToWebsite draws it ---- */
+
+  .th-widget {
+    position: absolute;
+    top: 64px;
+    right: var(--gutter);
+    bottom: var(--gutter);
+    z-index: 2;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    width: 288px;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--ss-surface);
+    box-shadow: 0 0 0 1px rgba(12, 22, 19, 0.06), 0 24px 48px -16px rgba(12, 40, 32, 0.28), 0 8px 16px -8px rgba(12, 40, 32, 0.12);
+  }
+
+  .th-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 14px;
+    background: var(--brand);
+    color: #fff;
+  }
+
+  .th-logo {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--brand-dark);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+  }
+
+  .th-who {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .th-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .th-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .th-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #6ee7b7;
+  }
+
+  .th-close {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .th-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding: 14px 14px 12px;
+  }
+
+  /* The avatar sits on the reply's first line, so it holds still while the
+     reply grows under it */
+  .th-thread .ss-bubble-row[data-avatar] {
+    align-items: flex-start;
+  }
+
+  .th-thread {
+    --ss-thread-size: 13px;
+    --ss-me: var(--brand);
+    --ss-them: #f1f4f3;
+    --ss-them-text: #1f2a27;
+    flex: 1;
+    gap: 6px;
+    line-height: 1.45;
+    /* Older messages soften as they leave under the header */
+    mask-image: linear-gradient(to bottom, transparent, #000 20px);
+  }
+
+  .th-thread .ss-bubble {
+    max-width: 82%;
+  }
+
+  .th-past {
+    display: block;
+    height: 7px;
+    margin: 5px 0;
+    border-radius: 4px;
+    background: currentColor;
+    opacity: 0.18;
+  }
+
+  .th-av {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+  }
+
+  .th-sources {
+    display: flex;
+    padding: 4px 0 0 34px;
+  }
+
+  .th-source {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 122px;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--ss-surface);
+    box-shadow: inset 0 0 0 1px rgba(12, 22, 19, 0.1);
+    color: var(--brand-dark);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 14px;
+  }
+
+  .th-foot {
+    padding: 12px 14px 14px;
+    border-top: 1px solid var(--ss-line-faint);
+  }
+
+  .th-composer {
+    --ss-radius-md: 999px;
+  }
+
+  .th-composer .ss-field__box {
+    padding-right: 5px;
+    font-size: 13px;
+  }
+
+  .th-send {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    opacity: 0.45;
+    transition: opacity 0.2s ease;
+  }
+
+  .th-send[data-on] {
+    opacity: 1;
+  }
+
+  /* ---- Compact: the widget leads, the page shows its title and the passage ---- */
+  & .ss-stage[data-layout='compact'] {
+    --gutter: 16px;
+  }
+
+  /* Whole across, so its foot hides under the widget */
+  & .ss-stage[data-layout='compact'] .th-site {
+    width: 600px;
+    height: 330px;
+  }
+
+  & .ss-stage[data-layout='compact'] .th-page {
+    padding: 18px 20px;
+  }
+
+  & .ss-stage[data-layout='compact'] .th-nav {
+    margin-bottom: 18px;
+  }
+
+  & .ss-stage[data-layout='compact'] .th-intro,
+  & .ss-stage[data-layout='compact'] .th-after {
+    display: none;
+  }
+
+  & .ss-stage[data-layout='compact'] .th-page > * {
+    max-width: 300px;
+  }
+
+  & .ss-stage[data-layout='compact'] .th-widget {
+    top: 228px;
+    left: var(--gutter);
+    width: auto;
+  }
+}
