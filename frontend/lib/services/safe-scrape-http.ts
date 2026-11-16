@@ -86,7 +86,13 @@ function requestPageOverPinnedIp(url: URL, address: string, family: 4 | 6): Prom
             path: `${url.pathname}${url.search}`,
             method: "GET",
             agent: false,
-            lookup: (_hostname, _options, callback) => callback(null, address, family),
+            // Node 20+ asks for every address ({ all: true }, for happy eyeballs) and
+            // expects an array back; answering with a single address there makes the
+            // request fail with "Invalid IP address: undefined".
+            lookup: ((_hostname: string, options: { all?: boolean }, callback: (...args: unknown[]) => void) => {
+                if (options?.all) callback(null, [{ address, family }]);
+                else callback(null, address, family);
+            }) as unknown as http.RequestOptions["lookup"],
             headers: {
                 Host: url.host,
                 "User-Agent": "TalkToWebsiteKnowledgeBot/1.0",

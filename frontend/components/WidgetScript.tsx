@@ -32,8 +32,8 @@ export function WidgetScript() {
       {shouldLoad && (
         <script
           src="/api/widget/widget.js"
-          data-bot="bot-web-ai"
-          data-api-key="ttw_0b5fbc1e3a468fb6bb8d2719d048fe8791b7495afa765573"
+          data-bot="talktowebsite-help"
+          data-api-key="ttw_e0b23312c871f39799e4a2bdfc1c0620f2325dec6927fa89"
         />
       )}
     </>
